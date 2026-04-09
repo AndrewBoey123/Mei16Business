@@ -1,0 +1,55 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEI Ai Bot QR Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #d2edf3;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 80vh;
+            padding: 20px;
+        }
+        .qr-box {
+            background-color: #23A6C0;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.05);
+            text-align: center;
+            max-width: 450px;
+            width: 100%;
+        }
+        .logo {
+            max-width: 100px;
+            margin-bottom: 20px;
+        }
+        .qr-code {
+            max-width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        .refresh-note {
+            font-size: 0.9rem;
+            color: black;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="qr-box">
+        <img src="https://ucarecdn.com/ecefbbeb-7edf-4cb9-9c12-ce6dc1158d73/-/scale_crop/200x200/" alt="MEI Logo" class="logo">
+        <h5 class="mb-3">Scan to Login to <strong>MEI WhatsApp AI</strong></h5>
+        <img src="data:image/png;base64,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JT98pHJS8UbFpDJVnFS8ofJPUnmj4kRlUpkqTireqDhRmSqmiknljYqTikllqphUpooTlX9SxaRyovKbHtZa65KHtda65GGttS754bKKSeWNiqliUpkqJpWpYlL5omJSmSomlanipGJSmVTeqJhUpopJZar4mypOKk5Upoqp4g2VNyomlaniROVE5aTiDZWbHtZa65KHtda65GGttS6xP/hA5aRiUpkqTlSmii9U3qh4Q2Wq+ELljYqbVKaKSWWqOFH5ouJE5Y2KSeWmikllqphUpopJZaqYVN6ouOlhrbUueVhrrUse1lrrkh8uqzipOFGZKt5QOak4UXlDZao4UZkqJpWTikllUnmj4ouKSWWqmComlZOKSeWkYlKZKiaVqeILlZOKN1TeqJhUpopJZar44mGttS55WGutSx7WWuuSHy5TuUllqjipmFQmlZOKSeWkYlI5qfhC5aTiN6m8oXJSMancVPGGylTxRsVNFZPKGxWTym96WGutSx7WWuuSh7XWusT+4CKVmyomlTcqJpWpYlI5qZhUflPFicpJxRsqJxWTyhsVJyonFZPKTRUnKlPFpDJV/CaVk4q/6WGttS55WGutSx7WWuuSH/6yiknlROU3qUwVk8q/icpUMamcqHyh8kbFpHJS8UbFicpUcaJyUjGpTBWTylQxqfwmlaniNz2stdYlD2utdcnDWmtdYn/wgcpJxaRyUvGGylRxojJVTConFX+TylQxqdxU8YbKVPGFylRxojJVTConFTepTBUnKlPFGyonFX/Tw1prXfKw1lqXPKy11iU/fFQxqdykMlV8UfGFyhcVN1V8oXKiMlWcqJxUTCpvqEwVJxUnKlPFb1J5Q2WqeEPljYovHtZa65KHtda65GGttS754V+u4g2VqWJSmSpOKt5QmSpOVN5Q+Zsq3qiYVE4qJpU3VE4qJpUTlaliUjmpuKnijYp/0sNaa13ysNZalzystdYlP3ykMlVMKm+o/KaKk4pJZaqYVN5QuaniDZUTlS9UTlS+qLip4t9E5SaVqWJSmSq+eFhrrUse1lrrkoe11rrkh8tUpopJZaqYVKaKE5WpYlKZKr5QmSpOVE4qTlROVN6oOFGZKiaVk4oTlaliUjlRmSomlZOKSeWk4qTijYpJ5YuKSWWqOKm46WGttS55WGutSx7WWusS+4MPVN6omFRuqphUpooT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" class="qr-code">
+        <div class="refresh-note"><strong>SCAN QUICKLY!!</strong><br>Whatsapp refreshes the code every 8 seconds.</div>
+    </div>
+</body>
+</html>

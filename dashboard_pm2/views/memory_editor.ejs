@@ -1,0 +1,43 @@
+<%- include('partials/header') %>
+
+<div class="d-flex">
+  <div class="sidebar bg-dark text-white">
+    <%- include('partials/sidebar') %>
+  </div>
+
+  <div class="main-content p-4 flex-grow-1">
+    <div class="card shadow">
+      <div class="card-header bg-info text-white">
+        <h5 class="mb-0 fw-bold">Memory Editor</h5>
+      </div>
+      <div class="card-body">
+        <% if (message) { %>
+          <div class="alert alert-info"><%= message %></div>
+        <% } %>
+
+        <ul class="nav nav-tabs mb-3" id="memoryTabs">
+          <li class="nav-item">
+            <a class="nav-link active fw-semibold" id="temp-tab" data-bs-toggle="tab" href="#temp">Temporary Memory</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link fw-semibold" id="perm-tab" data-bs-toggle="tab" href="#perm">Permanent Memory</a>
+          </li>
+        </ul>
+
+        <form method="POST" action="/memory-editor">
+          <div class="tab-content">
+            <div class="tab-pane fade show active" id="temp">
+              <textarea name="tempMemory" rows="18" class="form-control mb-3" style="font-family: monospace"><%= temp %></textarea>
+            </div>
+            <div class="tab-pane fade" id="perm">
+              <textarea name="permMemory" rows="18" class="form-control mb-3" style="font-family: monospace"><%= perm %></textarea>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Save Memory</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

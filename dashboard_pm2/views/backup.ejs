@@ -1,0 +1,52 @@
+<%- include('partials/header') %>
+
+<div class="container mt-4">
+  <h3 class="m-0">Backup Userdata</h3>
+  <p class="text-muted mb-3">Select what you want to download. Each button will generate a ZIP and download it.</p>
+
+  <div class="card">
+    <div class="card-body">
+
+      <!-- Top: whole userdata -->
+      <button class="btn btn-success mb-3" data-backup="all">
+        <i class="fa fa-box-archive"></i> Backup WHOLE userdata
+      </button>
+
+      <hr>
+
+      <!-- Individual buttons -->
+      <div class="d-flex flex-wrap gap-2">
+        <button class="btn btn-outline-primary" data-backup="persona">
+          <i class="fa fa-user-gear"></i> persona folder
+        </button>
+        <button class="btn btn-outline-primary" data-backup="mem">
+          <i class="fa fa-file-lines"></i> memory folder
+        </button>
+        <button class="btn btn-outline-primary" data-backup="img">
+          <i class="fa fa-image"></i> img folder
+        </button>
+        <button class="btn btn-outline-primary" data-backup="chathistory">
+          <i class="fa fa-comments"></i> chathistory folder
+        </button>
+        <button class="btn btn-outline-primary" data-backup="json">
+          <i class="fa fa-database"></i> json folder
+        </button>
+        <!--<button class="btn btn-outline-primary" data-backup="text">
+          <i class="fa fa-file"></i> text folder
+        </button>-->
+      </div>
+
+      <!-- Status -->
+      <p id="state" class="mt-3 text-muted"></p>
+
+      <!-- Alerts -->
+      <div id="ok"  class="alert alert-success mt-3 d-none">✅ Backup downloaded successfully.</div>
+      <div id="err" class="alert alert-danger  mt-3 d-none">❌ Failed to create or download the archive.</div>
+
+    </div>
+  </div>
+</div>
+
+<script src="/js/backup.js"></script>
+
+<%- include('partials/footer') %>

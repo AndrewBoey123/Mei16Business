@@ -1,0 +1,3528 @@
+<%- include('partials/header') %>
+
+<!-- Prism.js for Syntax Highlighting -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" data-theme-style />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markdown.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+
+<!-- CodeMirror 5 for code editing with syntax highlighting -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/shell/shell.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/sql/sql.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/yaml/yaml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/markdown/markdown.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/properties/properties.min.js"></script>
+
+<style>
+  /* ========================================
+     FILE MANAGER PRO - MODERN RESPONSIVE UI
+     ======================================== */
+
+  :root {
+    --fm-primary: #4361ee;
+    --fm-primary-hover: #3a56d4;
+    --fm-danger: #dc3545;
+    --fm-success: #28a745;
+    --fm-warning: #ffc107;
+    --fm-bg: #f8f9fa;
+    --fm-card-bg: #ffffff;
+    --fm-border: #e0e0e0;
+    --fm-text: #333333;
+    --fm-text-muted: #6c757d;
+    --fm-hover: #f0f0f0;
+    --fm-selected: #e3f2fd;
+    --fm-selected-border: #4361ee;
+    --fm-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    --fm-radius: 8px;
+  }
+
+  [data-theme="night"] {
+    --fm-bg: #0d1117;
+    --fm-card-bg: #161b22;
+    --fm-border: #30363d;
+    --fm-text: #c9d1d9;
+    --fm-text-muted: #8b949e;
+    --fm-hover: #21262d;
+    --fm-selected: #1f2937;
+    --fm-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+
+  [data-theme="blue"] {
+    --fm-bg: #edf2fb;
+    --fm-card-bg: #f5f8ff;
+    --fm-border: #c4d6f0;
+    --fm-text: #2b3e6b;
+    --fm-text-muted: #5b7ab8;
+    --fm-hover: #dce8f8;
+    --fm-selected: #cfe0f9;
+  }
+
+  [data-theme="teal"] {
+    --fm-bg: #e8f5f4;
+    --fm-card-bg: #f0faf9;
+    --fm-border: #a5d5d1;
+    --fm-text: #1c3d3a;
+    --fm-text-muted: #3a8a84;
+    --fm-hover: #c8e9e6;
+    --fm-selected: #b8e3df;
+  }
+
+  [data-theme="sand"] {
+    --fm-bg: #f3ece0;
+    --fm-card-bg: #fdf6eb;
+    --fm-border: #d4c0a0;
+    --fm-text: #48352a;
+    --fm-text-muted: #8a6040;
+    --fm-hover: #e6d6be;
+    --fm-selected: #d9c4a0;
+  }
+
+  /* Main Container */
+  .fileman-container {
+    height: calc(100vh - 60px);
+    display: flex;
+    flex-direction: column;
+    background: var(--fm-bg);
+    color: var(--fm-text);
+    overflow: hidden;
+  }
+
+  /* Toolbar */
+  .fm-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--fm-card-bg);
+    border-bottom: 1px solid var(--fm-border);
+    flex-wrap: wrap;
+  }
+
+  .fm-toolbar-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .fm-toolbar-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--fm-border);
+    margin: 0 4px;
+  }
+
+  .fm-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: 1px solid var(--fm-border);
+    background: var(--fm-card-bg);
+    color: var(--fm-text);
+    border-radius: var(--fm-radius);
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .fm-btn:hover:not(:disabled) {
+    background: var(--fm-hover);
+    border-color: var(--fm-primary);
+  }
+
+  .fm-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .fm-btn-active {
+    background: var(--fm-primary);
+    color: white;
+    border-color: var(--fm-primary);
+  }
+
+  .fm-btn-primary {
+    background: var(--fm-primary);
+    color: white;
+    border-color: var(--fm-primary);
+  }
+
+  .fm-btn-primary:hover:not(:disabled) {
+    background: var(--fm-primary-hover);
+  }
+
+  .fm-btn-danger {
+    color: var(--fm-danger);
+    border-color: var(--fm-danger);
+  }
+
+  .fm-btn-danger:hover:not(:disabled) {
+    background: var(--fm-danger);
+    color: white;
+  }
+
+  .fm-btn-icon {
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  /* Breadcrumb */
+  .fm-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 16px;
+    background: var(--fm-card-bg);
+    border-bottom: 1px solid var(--fm-border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .fm-breadcrumb::-webkit-scrollbar {
+    display: none;
+  }
+
+  .fm-breadcrumb-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    white-space: nowrap;
+    color: var(--fm-primary);
+  }
+
+  .fm-breadcrumb-item:hover {
+    background: var(--fm-hover);
+  }
+
+  .fm-breadcrumb-separator {
+    color: var(--fm-text-muted);
+    font-size: 12px;
+  }
+
+  .fm-breadcrumb-current {
+    color: var(--fm-text);
+    font-weight: 500;
+  }
+
+  /* Search Bar */
+  .fm-search {
+    position: relative;
+    flex: 1;
+    max-width: 300px;
+  }
+
+  .fm-search input {
+    width: 100%;
+    padding: 8px 12px 8px 32px;
+    border: 1px solid var(--fm-border);
+    border-radius: var(--fm-radius);
+    background: var(--fm-card-bg);
+    color: var(--fm-text);
+    font-size: 13px;
+  }
+
+  .fm-search i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--fm-text-muted);
+    font-size: 12px;
+  }
+
+  .fm-search input:focus {
+    outline: none;
+    border-color: var(--fm-primary);
+  }
+
+  /* Main Content Area */
+  .fm-main {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* Sidebar (Tree) */
+  .fm-sidebar {
+    width: 240px;
+    background: var(--fm-card-bg);
+    border-right: 1px solid var(--fm-border);
+    overflow-y: auto;
+    transition: transform 0.3s;
+  }
+
+  .fm-sidebar-header {
+    padding: 12px 16px;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: var(--fm-text-muted);
+    border-bottom: 1px solid var(--fm-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .fm-tree {
+    padding: 8px;
+  }
+
+  .fm-tree-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    user-select: none;
+  }
+
+  .fm-tree-item:hover {
+    background: var(--fm-hover);
+  }
+
+  .fm-tree-item.active {
+    background: var(--fm-selected);
+    color: var(--fm-primary);
+  }
+
+  .fm-tree-item i {
+    color: #ffc107;
+    font-size: 14px;
+    width: 16px;
+    text-align: center;
+  }
+
+  .fm-tree-toggle {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--fm-text-muted);
+    cursor: pointer;
+  }
+
+  .fm-tree-children {
+    padding-left: 20px;
+    display: none;
+  }
+
+  .fm-tree-children.expanded {
+    display: block;
+  }
+
+  /* Content Area */
+  .fm-content {
+    flex: 1;
+    overflow: auto;
+    padding: 16px;
+  }
+
+  /* Drop Zone Overlay */
+  .fm-drop-zone {
+    position: absolute;
+    inset: 0;
+    background: rgba(67, 97, 238, 0.1);
+    border: 3px dashed var(--fm-primary);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    pointer-events: none;
+  }
+
+  .fm-drop-zone.active {
+    display: flex;
+  }
+
+  .fm-drop-zone-content {
+    text-align: center;
+    color: var(--fm-primary);
+  }
+
+  .fm-drop-zone-content i {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+
+  /* File Grid (Icon View) */
+  .fm-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 16px;
+  }
+
+  .fm-grid-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 8px;
+    border-radius: var(--fm-radius);
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .fm-grid-item:hover {
+    background: var(--fm-hover);
+  }
+
+  .fm-grid-item.selected {
+    background: var(--fm-selected);
+    outline: 2px solid var(--fm-primary);
+  }
+
+  .fm-grid-item.selected::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    background: var(--fm-primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+  }
+
+  .fm-grid-icon {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    margin-bottom: 8px;
+  }
+
+  .fm-grid-icon img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+
+  .fm-grid-icon.folder {
+    color: #ffc107;
+  }
+
+  .fm-grid-icon.image {
+    color: #9c27b0;
+  }
+
+  .fm-grid-icon.video {
+    color: #f44336;
+  }
+
+  .fm-grid-icon.audio {
+    color: #2196f3;
+  }
+
+  .fm-grid-icon.pdf {
+    color: #ff5722;
+  }
+
+  .fm-grid-icon.word {
+    color: #2196f3;
+  }
+
+  .fm-grid-icon.excel {
+    color: #4caf50;
+  }
+
+  .fm-grid-icon.powerpoint {
+    color: #ff9800;
+  }
+
+  .fm-grid-icon.code {
+    color: #607d8b;
+  }
+
+  .fm-grid-icon.zip {
+    color: #795548;
+  }
+
+  .fm-grid-icon.text {
+    color: #9e9e9e;
+  }
+
+  .fm-grid-name {
+    font-size: 12px;
+    text-align: center;
+    word-break: break-word;
+    max-width: 100%;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* File List (List View) */
+  .fm-list {
+    background: var(--fm-card-bg);
+    border-radius: var(--fm-radius);
+    box-shadow: var(--fm-shadow);
+    overflow: hidden;
+  }
+
+  .fm-list-header {
+    display: grid;
+    grid-template-columns: 40px 1fr 120px 180px 100px;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--fm-hover);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--fm-text-muted);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--fm-border);
+  }
+
+  .fm-list-item {
+    display: grid;
+    grid-template-columns: 40px 1fr 120px 180px 100px;
+    gap: 12px;
+    padding: 10px 16px;
+    align-items: center;
+    cursor: pointer;
+    border-bottom: 1px solid var(--fm-border);
+    font-size: 13px;
+  }
+
+  .fm-list-item:last-child {
+    border-bottom: none;
+  }
+
+  .fm-list-item:hover {
+    background: var(--fm-hover);
+  }
+
+  .fm-list-item.selected {
+    background: var(--fm-selected);
+  }
+
+  .fm-list-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .fm-list-checkbox input {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+
+  .fm-list-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .fm-list-name i {
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
+  }
+
+  .fm-list-name i.folder {
+    color: #ffc107;
+  }
+
+  .fm-list-size, .fm-list-date {
+    color: var(--fm-text-muted);
+  }
+
+  .fm-list-actions {
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .fm-list-item:hover .fm-list-actions,
+  .fm-list-item.selected .fm-list-actions {
+    opacity: 1;
+  }
+
+  .fm-list-actions button {
+    padding: 4px 8px;
+    font-size: 11px;
+    border: none;
+    background: transparent;
+    color: var(--fm-text-muted);
+    cursor: pointer;
+    border-radius: 4px;
+  }
+
+  .fm-list-actions button:hover {
+    background: var(--fm-hover);
+    color: var(--fm-primary);
+  }
+
+  /* Empty State */
+  .fm-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: var(--fm-text-muted);
+    text-align: center;
+  }
+
+  .fm-empty i {
+    font-size: 64px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+
+  .fm-empty h3 {
+    font-size: 18px;
+    margin-bottom: 8px;
+    color: var(--fm-text);
+  }
+
+  /* Status Bar */
+  .fm-statusbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background: var(--fm-card-bg);
+    border-top: 1px solid var(--fm-border);
+    font-size: 12px;
+    color: var(--fm-text-muted);
+  }
+
+  .fm-statusbar-left, .fm-statusbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  /* Context Menu */
+  .fm-context-menu {
+    position: fixed;
+    background: var(--fm-card-bg);
+    border: 1px solid var(--fm-border);
+    border-radius: var(--fm-radius);
+    box-shadow: var(--fm-shadow);
+    padding: 6px 0;
+    min-width: 180px;
+    z-index: 1000;
+    display: none;
+  }
+
+  .fm-context-menu.visible {
+    display: block;
+  }
+
+  .fm-context-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--fm-text);
+  }
+
+  .fm-context-item:hover {
+    background: var(--fm-hover);
+  }
+
+  .fm-context-item.danger {
+    color: var(--fm-danger);
+  }
+
+  .fm-context-divider {
+    height: 1px;
+    background: var(--fm-border);
+    margin: 6px 0;
+  }
+
+  /* Submenu (flyout) */
+  .fm-has-submenu {
+    position: relative;
+    justify-content: space-between;
+  }
+
+  .fm-submenu-arrow {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--fm-text-muted);
+  }
+
+  .fm-submenu {
+    display: none;
+    position: absolute;
+    left: 100%;
+    top: -6px;
+    background: var(--fm-card-bg);
+    border: 1px solid var(--fm-border);
+    border-radius: var(--fm-radius);
+    box-shadow: var(--fm-shadow);
+    padding: 6px 0;
+    min-width: 200px;
+    z-index: 1001;
+  }
+
+  .fm-has-submenu:hover > .fm-submenu {
+    display: block;
+  }
+
+  /* Active sort indicator */
+  .fm-context-item.sort-active {
+    font-weight: 600;
+    color: var(--fm-primary);
+  }
+
+  /* Modal */
+  .fm-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 20px;
+  }
+
+  .fm-modal-overlay.visible {
+    display: flex;
+  }
+
+  .fm-modal {
+    background: var(--fm-card-bg);
+    border-radius: var(--fm-radius);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .fm-modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--fm-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .fm-modal-title {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .fm-modal-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: var(--fm-text-muted);
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  .fm-modal-body {
+    padding: 20px;
+    overflow-y: auto;
+  }
+
+  .fm-modal-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--fm-border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  /* Preview Modal */
+  .fm-preview-modal .fm-modal {
+    max-width: 92vw;
+    width: 92vw;
+    max-height: 92vh;
+    height: 92vh;
+  }
+
+  .fm-preview-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    min-height: 0;
+    background: var(--fm-bg);
+    overflow: hidden;
+  }
+
+  /* Editor fills the full content area */
+  .fm-preview-content .fm-editor-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .fm-preview-content .fm-editor-textarea {
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+    resize: none;
+  }
+
+  .fm-preview-content img {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+  }
+
+  .fm-preview-content pre {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    background: var(--fm-bg);
+    padding: 16px;
+    margin: 0;
+    font-family: 'Monaco', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  /* Toast Notifications */
+  .fm-toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 3000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .fm-toast {
+    background: var(--fm-card-bg);
+    border: 1px solid var(--fm-border);
+    border-radius: var(--fm-radius);
+    box-shadow: var(--fm-shadow);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 280px;
+    animation: slideIn 0.3s ease;
+  }
+
+  .fm-toast.success {
+    border-left: 3px solid var(--fm-success);
+  }
+
+  .fm-toast.error {
+    border-left: 3px solid var(--fm-danger);
+  }
+
+  .fm-toast.warning {
+    border-left: 3px solid var(--fm-warning);
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  /* Upload Progress */
+  .fm-upload-progress {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    background: var(--fm-card-bg);
+    border: 1px solid var(--fm-border);
+    border-radius: var(--fm-radius);
+    box-shadow: var(--fm-shadow);
+    padding: 16px;
+    min-width: 300px;
+    z-index: 2500;
+    display: none;
+  }
+
+  .fm-upload-progress.visible {
+    display: block;
+  }
+
+  .fm-upload-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 13px;
+  }
+
+  .fm-upload-bar {
+    height: 4px;
+    background: var(--fm-hover);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .fm-upload-fill {
+    height: 100%;
+    background: var(--fm-primary);
+    transition: width 0.3s;
+  }
+
+  /* Copy progress widget — stacks above upload widget when both visible */
+  #copyProgress {
+    bottom: 80px;
+    right: 20px;
+  }
+  #copyProgress.stacked {
+    bottom: 220px;
+  }
+
+  /* Indeterminate pulsing bar for "copying in progress" state */
+  @keyframes fm-pulse {
+    0%   { left: -40%; width: 40%; }
+    60%  { left: 100%;  width: 40%; }
+    100% { left: 100%;  width: 40%; }
+  }
+  .fm-bar-pulse {
+    position: relative;
+    overflow: hidden;
+  }
+  .fm-bar-pulse::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    background: var(--fm-primary);
+    animation: fm-pulse 1.4s ease-in-out infinite;
+  }
+
+  /* Per-file verification rows */
+  .fm-verify-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 12px;
+  }
+  .fm-verify-list li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 0;
+    border-bottom: 1px solid var(--fm-border);
+  }
+  .fm-verify-list li:last-child { border-bottom: none; }
+  .fm-verify-list .fm-vi-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .fm-verify-list .fm-vi-size { color: var(--fm-muted); white-space: nowrap; }
+  .fm-verify-list .fm-vi-ok   { color: #28a745; }
+  .fm-verify-list .fm-vi-fail { color: #dc3545; }
+
+  /* Mobile Optimizations */
+  @media (max-width: 768px) {
+    .fm-sidebar {
+      position: fixed;
+      left: 0;
+      top: 60px;
+      bottom: 0;
+      z-index: 500;
+      transform: translateX(-100%);
+    }
+
+    .fm-sidebar.open {
+      transform: translateX(0);
+    }
+
+    .fm-sidebar-overlay {
+      position: fixed;
+      inset: 60px 0 0 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 400;
+      display: none;
+    }
+
+    .fm-sidebar-overlay.visible {
+      display: block;
+    }
+
+    .fm-toolbar {
+      padding: 8px 12px;
+    }
+
+    .fm-toolbar-group:not(.mobile-visible) {
+      display: none;
+    }
+
+    .fm-search {
+      max-width: none;
+      width: 100%;
+      order: -1;
+    }
+
+    .fm-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .fm-grid-icon {
+      width: 48px;
+      height: 48px;
+      font-size: 28px;
+    }
+
+    .fm-list-header {
+      display: none;
+    }
+
+    .fm-list-item {
+      grid-template-columns: 40px 1fr auto;
+      padding: 12px;
+    }
+
+    .fm-list-size, .fm-list-date {
+      display: none;
+    }
+
+    .fm-list-actions {
+      opacity: 1;
+    }
+
+    .fm-breadcrumb {
+      padding: 8px 12px;
+    }
+
+    .fm-statusbar {
+      padding: 8px 12px;
+      font-size: 11px;
+    }
+
+    .fm-modal {
+      margin: 10px;
+      max-height: calc(100vh - 20px);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .fm-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Mobile Menu Toggle */
+  .fm-mobile-menu-btn {
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    .fm-mobile-menu-btn {
+      display: inline-flex;
+    }
+  }
+
+  /* Selection Rectangle (for drag-select) */
+  .fm-selection-rect {
+    position: absolute;
+    border: 1px dashed var(--fm-primary);
+    background: rgba(67, 97, 238, 0.1);
+    pointer-events: none;
+    z-index: 50;
+    display: none;
+  }
+
+  /* Loading Spinner */
+  .fm-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--fm-border);
+    border-top-color: var(--fm-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* ========================================
+     SYNTAX HIGHLIGHTING & EDITOR STYLES
+     ======================================== */
+
+  /* Code Preview with Line Numbers */
+  .fm-code-preview {
+    display: flex;
+    background: #1e1e1e;
+    border-radius: var(--fm-radius);
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .fm-line-numbers {
+    background: #252526;
+    color: #858585;
+    padding: 16px 12px;
+    text-align: right;
+    font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre;
+    user-select: none;
+    border-right: 1px solid #333;
+    overflow: hidden;
+  }
+
+  .fm-code-content {
+    flex: 1;
+    overflow: auto;
+    padding: 16px;
+  }
+
+  .fm-code-content pre {
+    margin: 0;
+    background: transparent !important;
+    padding: 0 !important;
+  }
+
+  .fm-code-content code {
+    font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  /* Edit Mode */
+  .fm-editor-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 400px;
+  }
+
+  .fm-editor-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: var(--fm-hover);
+    border-bottom: 1px solid var(--fm-border);
+    font-size: 13px;
+  }
+
+  .fm-editor-info {
+    margin-left: auto;
+    color: var(--fm-text-muted);
+  }
+
+  .fm-editor-textarea {
+    flex: 1;
+    width: 100%;
+    padding: 16px;
+    border: none;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    resize: none;
+    outline: none;
+    tab-size: 2;
+  }
+
+  /* CodeMirror editor styles */
+  #cmEditorContainer {
+    flex: 1;
+    min-height: 0;
+    height: 60vh;
+    overflow: auto;
+  }
+
+  .CodeMirror {
+    height: 100%;
+    font-size: 13px;
+    font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
+    line-height: 1.6;
+  }
+
+  /* Theme Adaptations for Prism */
+  [data-theme="night"] .fm-code-preview {
+    background: #0d1117;
+  }
+
+  [data-theme="night"] .fm-line-numbers {
+    background: #161b22;
+    border-color: #30363d;
+  }
+
+  /* Editor Toggle Button States */
+  .fm-btn.editing {
+    background: var(--fm-primary);
+    color: white;
+  }
+
+  /* Save/Cancel Button Styles */
+  .fm-btn-success {
+    background: var(--fm-success);
+    color: white;
+    border-color: var(--fm-success);
+  }
+
+  .fm-btn-success:hover {
+    background: #218838;
+    border-color: #1e7e34;
+  }
+
+  /* Unsaved Changes Indicator */
+  .fm-unsaved-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--fm-warning);
+    font-size: 12px;
+    margin-left: 10px;
+  }
+
+  .fm-unsaved-indicator::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: var(--fm-warning);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* Responsive Editor */
+  @media (max-width: 768px) {
+    .fm-code-preview {
+      flex-direction: column;
+    }
+
+    .fm-line-numbers {
+      display: none;
+    }
+
+    .fm-editor-toolbar {
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .fm-editor-info {
+      width: 100%;
+      margin-left: 0;
+      margin-top: 8px;
+    }
+  }
+</style>
+
+<div class="fileman-container" id="fileManager">
+  <!-- Toolbar -->
+  <div class="fm-toolbar">
+    <button class="fm-btn fm-btn-icon fm-mobile-menu-btn" onclick="toggleSidebar()">
+      <i class="fa fa-bars"></i>
+    </button>
+
+    <div class="fm-toolbar-group mobile-visible">
+      <button class="fm-btn" onclick="goUp()" id="btnUp" title="Go Up">
+        <i class="fa fa-arrow-up"></i>
+      </button>
+      <button class="fm-btn" onclick="refresh()" title="Refresh">
+        <i class="fa fa-refresh"></i>
+      </button>
+    </div>
+
+    <div class="fm-toolbar-divider mobile-visible"></div>
+
+    <div class="fm-toolbar-group">
+      <button class="fm-btn fm-btn-primary" onclick="showUploadModal()">
+        <i class="fa fa-cloud-upload"></i>
+        <span class="d-none d-md-inline">Upload</span>
+      </button>
+      <button class="fm-btn" onclick="showNewFolderModal()">
+        <i class="fa fa-folder-plus"></i>
+        <span class="d-none d-md-inline">New Folder</span>
+      </button>
+    </div>
+
+    <div class="fm-toolbar-divider"></div>
+
+    <div class="fm-toolbar-group">
+      <button class="fm-btn" onclick="pasteFromClipboard()" id="btnPaste" title="Paste (Ctrl+V)">
+        <i class="fa fa-paste"></i>
+      </button>
+      <button class="fm-btn" onclick="downloadSelected()" id="btnDownload" disabled>
+        <i class="fa fa-download"></i>
+      </button>
+      <button class="fm-btn" onclick="showZipModal()" id="btnZip" disabled>
+        <i class="fa fa-file-zipper"></i>
+      </button>
+      <button class="fm-btn fm-btn-danger" onclick="deleteSelected()" id="btnDelete" disabled>
+        <i class="fa fa-trash"></i>
+      </button>
+    </div>
+
+    <div class="fm-toolbar-divider"></div>
+
+    <div class="fm-toolbar-group">
+      <button class="fm-btn fm-btn-icon" onclick="setViewMode('grid')" id="btnGrid" title="Grid View">
+        <i class="fa fa-th-large"></i>
+      </button>
+      <button class="fm-btn fm-btn-icon" onclick="setViewMode('list')" id="btnList" title="List View">
+        <i class="fa fa-list"></i>
+      </button>
+    </div>
+
+    <div class="fm-toolbar-divider"></div>
+
+    <div class="fm-toolbar-group">
+      <button id="toggleHiddenBtn" class="fm-btn fm-btn-icon" onclick="toggleHidden()" title="Show/hide hidden files and folders">
+        <i class="fa fa-eye-slash"></i>
+      </button>
+    </div>
+
+    <div class="fm-search">
+      <i class="fa fa-search"></i>
+      <input type="text" id="searchInput" placeholder="Search files..." oninput="handleSearch(this.value)">
+    </div>
+  </div>
+
+  <!-- Breadcrumb -->
+  <div class="fm-breadcrumb" id="breadcrumb">
+    <!-- Dynamic breadcrumb items -->
+  </div>
+
+  <!-- Main Content -->
+  <div class="fm-main">
+    <!-- Mobile Sidebar Overlay -->
+    <div class="fm-sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar (Folder Tree) -->
+    <div class="fm-sidebar" id="sidebar">
+      <div class="fm-sidebar-header">
+        <span>Folders</span>
+        <button class="fm-btn fm-btn-icon" onclick="toggleSidebar()" style="display:none;" id="sidebarClose">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      <div class="fm-tree" id="folderTree">
+        <!-- Dynamic folder tree -->
+      </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="fm-content" id="contentArea">
+      <div class="fm-drop-zone" id="dropZone">
+        <div class="fm-drop-zone-content">
+          <i class="fa fa-cloud-upload"></i>
+          <h3>Drop files here</h3>
+          <p>to upload to this folder</p>
+          <p style="font-size:0.8em; opacity:0.7; margin-top:6px;"><i class="fa fa-paste"></i> or press <kbd style="background:rgba(255,255,255,0.2);padding:1px 5px;border-radius:3px;">Ctrl+V</kbd> to paste files from your computer</p>
+        </div>
+      </div>
+
+      <div class="fm-grid" id="fileGrid">
+        <!-- Dynamic file grid -->
+      </div>
+
+      <div class="fm-list" id="fileList" style="display:none;">
+        <!-- Dynamic file list -->
+      </div>
+
+      <div class="fm-empty" id="emptyState" style="display:none;">
+        <i class="fa fa-folder-open"></i>
+        <h3>This folder is empty</h3>
+        <p>Upload files or create a new folder to get started</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Bar -->
+  <div class="fm-statusbar">
+    <div class="fm-statusbar-left">
+      <span id="itemCount">0 items</span>
+      <span id="selectedCount" style="display:none;">0 selected</span>
+    </div>
+    <div class="fm-statusbar-right">
+      <span id="viewModeLabel">Grid View</span>
+    </div>
+  </div>
+</div>
+
+<!-- Context Menu -->
+<div class="fm-context-menu" id="contextMenu">
+  <!-- Background-only items -->
+  <div class="fm-context-item fm-has-submenu" id="ctxNew">
+    <i class="fa fa-plus"></i> New
+    <i class="fa fa-chevron-right fm-submenu-arrow"></i>
+    <div class="fm-submenu">
+      <div class="fm-context-item" onclick="contextNewFolder()">
+        <i class="fa fa-folder-plus"></i> Folder
+      </div>
+      <div class="fm-context-item" onclick="contextNewFile()">
+        <i class="fa fa-file-circle-plus"></i> File
+      </div>
+    </div>
+  </div>
+  <div class="fm-context-item fm-has-submenu" id="ctxSortBy">
+    <i class="fa fa-arrow-up-wide-short"></i> Sort By
+    <i class="fa fa-chevron-right fm-submenu-arrow"></i>
+    <div class="fm-submenu" id="sortSubmenu">
+      <div class="fm-context-item" onclick="applySortOrder('name','asc')" id="sortNameAsc">
+        <i class="fa fa-arrow-down-a-z"></i> Name (A → Z)
+      </div>
+      <div class="fm-context-item" onclick="applySortOrder('name','desc')" id="sortNameDesc">
+        <i class="fa fa-arrow-up-a-z"></i> Name (Z → A)
+      </div>
+      <div class="fm-context-divider"></div>
+      <div class="fm-context-item" onclick="applySortOrder('date','desc')" id="sortDateDesc">
+        <i class="fa fa-calendar-days"></i> Date (Newest first)
+      </div>
+      <div class="fm-context-item" onclick="applySortOrder('date','asc')" id="sortDateAsc">
+        <i class="fa fa-calendar-days"></i> Date (Oldest first)
+      </div>
+      <div class="fm-context-divider"></div>
+      <div class="fm-context-item" onclick="applySortOrder('size','desc')" id="sortSizeDesc">
+        <i class="fa fa-weight-hanging"></i> Size (Largest first)
+      </div>
+      <div class="fm-context-item" onclick="applySortOrder('size','asc')" id="sortSizeAsc">
+        <i class="fa fa-weight-hanging"></i> Size (Smallest first)
+      </div>
+      <div class="fm-context-divider"></div>
+      <div class="fm-context-item" onclick="applySortOrder('type','asc')" id="sortType">
+        <i class="fa fa-shapes"></i> Type
+      </div>
+    </div>
+  </div>
+  <div class="fm-context-item" onclick="contextPaste()" id="ctxPasteBg" style="display:none;">
+    <i class="fa fa-paste"></i> Paste
+  </div>
+  <div class="fm-context-divider" id="ctxDividerBg"></div>
+
+  <!-- Item-specific items -->
+  <div class="fm-context-item" onclick="contextOpen()" id="ctxOpen">
+    <i class="fa fa-folder-open"></i> Open
+  </div>
+  <div class="fm-context-item" onclick="contextPreview()" id="ctxPreview">
+    <i class="fa fa-eye"></i> Preview
+  </div>
+  <div class="fm-context-divider" id="ctxDividerTop"></div>
+  <div class="fm-context-item" onclick="contextDownload()" id="ctxDownload">
+    <i class="fa fa-download"></i> Download
+  </div>
+  <div class="fm-context-item" onclick="contextRename()" id="ctxRename">
+    <i class="fa fa-edit"></i> Rename
+  </div>
+  <div class="fm-context-item" onclick="contextCopy()" id="ctxCopy">
+    <i class="fa fa-copy"></i> Copy
+  </div>
+  <div class="fm-context-item" onclick="contextCut()" id="ctxCut">
+    <i class="fa fa-cut"></i> Cut
+  </div>
+  <div class="fm-context-item" onclick="contextPaste()" id="ctxPaste" style="display:none;">
+    <i class="fa fa-paste"></i> Paste
+  </div>
+  <div class="fm-context-divider" id="ctxDividerMid"></div>
+  <div class="fm-context-item" onclick="contextZip()" id="ctxZip">
+    <i class="fa fa-file-zipper"></i> Zip
+  </div>
+  <div class="fm-context-item" onclick="contextUnzip()" id="ctxUnzip" style="display:none;">
+    <i class="fa fa-file-zipper"></i> Unzip
+  </div>
+  <div class="fm-context-divider" id="ctxDividerDelete"></div>
+  <div class="fm-context-item danger" onclick="contextDelete()" id="ctxDelete">
+    <i class="fa fa-trash"></i> Delete
+  </div>
+</div>
+
+<!-- New Folder Modal -->
+<div class="fm-modal-overlay" id="newFolderModal">
+  <div class="fm-modal">
+    <div class="fm-modal-header">
+      <span class="fm-modal-title">Create New Folder</span>
+      <button class="fm-modal-close" onclick="closeModal('newFolderModal')">&times;</button>
+    </div>
+    <div class="fm-modal-body">
+      <label style="display:block; margin-bottom:8px; font-size:13px;">Folder name:</label>
+      <input type="text" id="newFolderName" class="form-control" placeholder="Enter folder name" onkeydown="if(event.key==='Enter')createNewFolder()">
+    </div>
+    <div class="fm-modal-footer">
+      <button class="fm-btn" onclick="closeModal('newFolderModal')">Cancel</button>
+      <button class="fm-btn fm-btn-primary" onclick="createNewFolder()">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- New File Modal -->
+<div class="fm-modal-overlay" id="newFileModal">
+  <div class="fm-modal">
+    <div class="fm-modal-header">
+      <span class="fm-modal-title">Create New File</span>
+      <button class="fm-modal-close" onclick="closeModal('newFileModal')">&times;</button>
+    </div>
+    <div class="fm-modal-body">
+      <label style="display:block; margin-bottom:8px; font-size:13px;">File name (include extension):</label>
+      <input type="text" id="newFileName" class="form-control" placeholder="e.g. notes.txt, script.js" onkeydown="if(event.key==='Enter')createNewFile()">
+    </div>
+    <div class="fm-modal-footer">
+      <button class="fm-btn" onclick="closeModal('newFileModal')">Cancel</button>
+      <button class="fm-btn fm-btn-primary" onclick="createNewFile()">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- Rename Modal -->
+<div class="fm-modal-overlay" id="renameModal">
+  <div class="fm-modal">
+    <div class="fm-modal-header">
+      <span class="fm-modal-title">Rename</span>
+      <button class="fm-modal-close" onclick="closeModal('renameModal')">&times;</button>
+    </div>
+    <div class="fm-modal-body">
+      <label style="display:block; margin-bottom:8px; font-size:13px;">New name:</label>
+      <input type="text" id="renameInput" class="form-control" onkeydown="if(event.key==='Enter')confirmRename()">
+    </div>
+    <div class="fm-modal-footer">
+      <button class="fm-btn" onclick="closeModal('renameModal')">Cancel</button>
+      <button class="fm-btn fm-btn-primary" onclick="confirmRename()">Rename</button>
+    </div>
+  </div>
+</div>
+
+<!-- Zip Modal -->
+<div class="fm-modal-overlay" id="zipModal">
+  <div class="fm-modal">
+    <div class="fm-modal-header">
+      <span class="fm-modal-title">Create Zip Archive</span>
+      <button class="fm-modal-close" onclick="closeModal('zipModal')">&times;</button>
+    </div>
+    <div class="fm-modal-body">
+      <label style="display:block; margin-bottom:8px; font-size:13px;">Archive name:</label>
+      <input type="text" id="zipNameInput" class="form-control" placeholder="archive.zip" onkeydown="if(event.key==='Enter')confirmZip()">
+    </div>
+    <div class="fm-modal-footer">
+      <button class="fm-btn" onclick="closeModal('zipModal')">Cancel</button>
+      <button class="fm-btn fm-btn-primary" onclick="confirmZip()">Create Zip</button>
+    </div>
+  </div>
+</div>
+
+<!-- Upload Modal -->
+<div class="fm-modal-overlay" id="uploadModal">
+  <div class="fm-modal">
+    <div class="fm-modal-header">
+      <span class="fm-modal-title">Upload Files</span>
+      <button class="fm-modal-close" onclick="closeModal('uploadModal')">&times;</button>
+    </div>
+    <div class="fm-modal-body">
+      <div style="border:2px dashed var(--fm-border); border-radius:var(--fm-radius); padding:40px; text-align:center; cursor:pointer;" onclick="document.getElementById('fileInput').click()">
+        <i class="fa fa-cloud-upload" style="font-size:48px; color:var(--fm-primary); margin-bottom:16px;"></i>
+        <p>Click to select files or drag &amp; drop here</p>
+        <p style="font-size:0.85em; color:var(--fm-text-muted); margin-top:8px;"><i class="fa fa-info-circle"></i> <strong>Ctrl+C</strong> to copy | <strong>Ctrl+V</strong> to paste files from PC | Drag & Drop folders</p>
+        <input type="file" id="fileInput" multiple style="display:none;" onchange="handleFileSelect(this.files)">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Conflict Resolution Modal -->
+<div class="fm-modal-overlay" id="conflictModal">
+  <div class="fm-modal" style="max-width: 600px;">
+    <div class="fm-modal-header">
+      <span class="fm-modal-title"><i class="fa fa-exclamation-triangle" style="color: #f0ad4e;"></i> File Conflict</span>
+      <button class="fm-modal-close" onclick="closeModal('conflictModal')">&times;</button>
+    </div>
+    <div class="fm-modal-body">
+      <p style="margin-bottom: 16px;">The following files already exist in the destination folder:</p>
+      <div id="conflictList" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--fm-border); border-radius: var(--fm-radius); padding: 12px; background: var(--fm-hover); margin-bottom: 20px;">
+        <!-- Conflicts will be listed here -->
+      </div>
+      <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: var(--fm-radius); padding: 12px; margin-bottom: 16px;">
+        <p style="margin: 0; font-weight: 600; color: #856404;">What would you like to do?</p>
+      </div>
+    </div>
+    <div class="fm-modal-footer" style="justify-content: space-between;">
+      <div>
+        <button class="fm-btn" onclick="resolveConflicts('skip')">
+          <i class="fa fa-ban"></i> Skip All
+        </button>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button class="fm-btn" onclick="resolveConflicts('rename')">
+          <i class="fa fa-edit"></i> Rename
+        </button>
+        <button class="fm-btn fm-btn-primary" onclick="resolveConflicts('overwrite')">
+          <i class="fa fa-exchange-alt"></i> Overwrite
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="fm-modal-overlay fm-preview-modal" id="previewModal" onclick="if(event.target===this)closeModal('previewModal')">
+  <div class="fm-modal">
+    <div class="fm-modal-header">
+      <span class="fm-modal-title" id="previewTitle">Preview</span>
+      <div>
+        <button class="fm-modal-close" onclick="closeModal('previewModal')">&times;</button>
+      </div>
+    </div>
+    <div class="fm-preview-content" id="previewContent">
+      <!-- Dynamic preview content -->
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="fm-toast-container" id="toastContainer"></div>
+
+<!-- Upload Progress -->
+<div class="fm-upload-progress" id="uploadProgress">
+  <div class="fm-upload-header">
+    <span>Uploading...</span>
+    <span id="uploadPercent">0%</span>
+  </div>
+  <div class="fm-upload-bar">
+    <div class="fm-upload-fill" id="uploadFill" style="width:0%"></div>
+  </div>
+  <div id="uploadBytes" style="font-size:11px; margin-top:5px; color:var(--fm-muted);"></div>
+  <div id="uploadCurrentFile" style="font-size:11px; margin-top:3px; color:var(--fm-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></div>
+</div>
+
+<!-- Copy / Move Progress & Verification -->
+<div class="fm-upload-progress" id="copyProgress">
+  <div class="fm-upload-header">
+    <span id="copyProgressTitle">📋 Copying...</span>
+    <span id="copyProgressPercent"></span>
+  </div>
+  <div class="fm-upload-bar fm-bar-pulse" id="copyProgressBar">
+    <div class="fm-upload-fill" id="copyProgressFill" style="width:0%; transition:none;"></div>
+  </div>
+  <div id="copyProgressBytes" style="font-size:11px; margin-top:5px; color:var(--fm-muted);"></div>
+  <div id="copyProgressList" style="display:none; margin-top:8px; max-height:200px; overflow-y:auto;"></div>
+  <div id="copyProgressSummary" style="display:none; margin-top:6px; font-size:12px; font-weight:600;"></div>
+  <div id="copyProgressActions" style="display:none; margin-top:10px; text-align:right; gap:8px;"></div>
+</div>
+
+<script>
+// ========================================
+// FILE MANAGER PRO - JAVASCRIPT
+// ========================================
+
+// ───── Byte formatting helper ─────
+function formatBytes(bytes) {
+  if (!bytes && bytes !== 0) return '—';
+  if (bytes === 0) return '0 B';
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  return (bytes / Math.pow(1024, i)).toFixed(i > 0 ? 1 : 0) + ' ' + units[i];
+}
+
+// ───── Copy / Move progress widget ─────
+function showCopyProgress(opts) {
+  const el       = document.getElementById('copyProgress');
+  const titleEl  = document.getElementById('copyProgressTitle');
+  const pctEl    = document.getElementById('copyProgressPercent');
+  const barEl    = document.getElementById('copyProgressBar');
+  const fillEl   = document.getElementById('copyProgressFill');
+  const bytesEl  = document.getElementById('copyProgressBytes');
+  const listEl   = document.getElementById('copyProgressList');
+  const summaryEl= document.getElementById('copyProgressSummary');
+  const actionsEl= document.getElementById('copyProgressActions');
+  const uploadEl = document.getElementById('uploadProgress');
+
+  if (opts.state === 'copying') {
+    // Stack above upload widget if it's visible
+    el.classList.toggle('stacked', uploadEl && uploadEl.classList.contains('visible'));
+    titleEl.textContent  = opts.action === 'move' ? '✂️ Moving...' : '📋 Copying...';
+    pctEl.textContent    = '';
+    bytesEl.textContent  = `${opts.total} item${opts.total !== 1 ? 's' : ''}...`;
+    barEl.classList.add('fm-bar-pulse');
+    fillEl.style.width   = '0%';
+    listEl.style.display = 'none';
+    listEl.innerHTML     = '';
+    summaryEl.style.display  = 'none';
+    actionsEl.style.display  = 'none';
+    el.classList.add('visible');
+    return;
+  }
+
+  if (opts.state === 'done') {
+    const data = opts.data;
+    const v    = data.verification;
+    const isMove = opts.action === 'move';
+
+    barEl.classList.remove('fm-bar-pulse');
+    fillEl.style.width  = '100%';
+    fillEl.style.transition = 'width 0.4s';
+
+    if (!v) {
+      // No verification data (move operation or error)
+      const success = data.results ? data.results.filter(r => r.success).length : 0;
+      const total   = data.results ? data.results.length : 0;
+      titleEl.textContent = success === total
+        ? `✅ ${isMove ? 'Move' : 'Copy'} Complete`
+        : `⚠️ ${isMove ? 'Move' : 'Copy'} Incomplete`;
+      bytesEl.textContent = `${success} of ${total} items`;
+      pctEl.textContent   = '';
+      actionsEl.innerHTML = '<button class="fm-btn fm-btn-primary" style="font-size:12px; padding:4px 12px;" onclick="document.getElementById(\'copyProgress\').classList.remove(\'visible\')">Close</button>';
+      actionsEl.style.display = 'flex';
+      actionsEl.style.justifyContent = 'flex-end';
+      
+      // Auto-close after 5 seconds
+      setTimeout(() => {
+        el.classList.remove('visible');
+      }, 5000);
+      return;
+    }
+
+    const allOk = v.verified;
+    titleEl.textContent = allOk ? '✅ Copy Complete' : '⚠️ Copy Incomplete';
+    pctEl.textContent   = '100%';
+
+    const srcFmt = formatBytes(v.totalSrcBytes);
+    const dstFmt = formatBytes(v.totalDstBytes);
+    bytesEl.innerHTML = allOk
+      ? `${dstFmt} / ${srcFmt} <span style="color:#28a745">✅ Verified</span>`
+      : `${dstFmt} / ${srcFmt} <span style="color:#dc3545">❌ Mismatch</span>`;
+
+    // Build per-file list
+    if (v.files && v.files.length) {
+      let html = '<ul class="fm-verify-list">';
+      for (const f of v.files) {
+        if (f.error) {
+          html += `<li>
+            <span class="fm-vi-fail">❌</span>
+            <span class="fm-vi-name" title="${f.name}">${f.name}</span>
+            <span class="fm-vi-fail" style="font-size:11px">${f.error}</span>
+          </li>`;
+        } else if (f.isFolder) {
+          const ok = f.verified;
+          html += `<li>
+            <span class="${ok ? 'fm-vi-ok' : 'fm-vi-fail'}">${ok ? '✅' : '❌'}</span>
+            <span class="fm-vi-name" title="${f.name}">📁 ${f.name}</span>
+            <span class="fm-vi-size">${formatBytes(f.dstSize)}${!ok ? ' / ' + formatBytes(f.srcSize) : ''}</span>
+            <span class="${ok ? 'fm-vi-ok' : 'fm-vi-fail'}">${ok ? '✓' : '✗'}</span>
+          </li>`;
+        } else {
+          const ok = f.verified;
+          html += `<li>
+            <span class="${ok ? 'fm-vi-ok' : 'fm-vi-fail'}">${ok ? '✅' : '❌'}</span>
+            <span class="fm-vi-name" title="${f.name}">${f.name}</span>
+            <span class="fm-vi-size">${formatBytes(f.dstSize)}${!ok ? ' / ' + formatBytes(f.srcSize) : ''}</span>
+            <span class="${ok ? 'fm-vi-ok' : 'fm-vi-fail'}">${ok ? '✓' : '✗'}</span>
+          </li>`;
+        }
+      }
+      html += '</ul>';
+      listEl.innerHTML     = html;
+      listEl.style.display = 'block';
+    }
+
+    // Summary line
+    const failCount = v.files ? v.files.filter(f => !f.verified).length : 0;
+    summaryEl.style.display = 'block';
+    summaryEl.innerHTML = allOk
+      ? `<span style="color:#28a745">${v.files ? v.files.length : ''} files • ${srcFmt} • 100% integrity ✓</span>`
+      : `<span style="color:#dc3545">⚠️ ${failCount} file${failCount !== 1 ? 's' : ''} failed verification</span>`;
+
+    // Actions
+    actionsEl.innerHTML = '';
+    actionsEl.style.display = 'flex';
+    actionsEl.style.justifyContent = 'flex-end';
+    actionsEl.style.gap = '8px';
+    actionsEl.style.removeProperty('display'); // override inline display:none
+    actionsEl.style.display = 'flex';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'fm-btn';
+    closeBtn.style.cssText = 'font-size:12px; padding:4px 12px;';
+    closeBtn.textContent = 'Close';
+    closeBtn.onclick = () => el.classList.remove('visible');
+    actionsEl.appendChild(closeBtn);
+    
+    // Auto-close after 5 seconds if all OK
+    if (allOk) {
+      setTimeout(() => {
+        el.classList.remove('visible');
+      }, 5000);
+    }
+    return;
+  }
+
+  if (opts.state === 'hide') {
+    el.classList.remove('visible');
+  }
+}
+
+// State
+let currentPath = '';
+let currentItems = [];
+let selectedItems = new Set();
+let showHidden = false;
+
+function toggleHidden() {
+  showHidden = !showHidden;
+  const btn = document.getElementById('toggleHiddenBtn');
+  if (btn) {
+    btn.classList.toggle('fm-btn-active', showHidden);
+    btn.title = showHidden ? 'Hide hidden files and folders' : 'Show hidden files and folders';
+    btn.innerHTML = showHidden
+      ? '<i class="fa fa-eye"></i>'
+      : '<i class="fa fa-eye-slash"></i>';
+  }
+  loadFolderTree();
+  loadFiles(currentPath);
+}
+let viewMode = 'grid'; // 'grid' or 'list'
+let clipboard = { items: [], action: null }; // action: 'copy' or 'cut'
+let contextItem = null;
+let currentPreviewItem = null;
+let isSearching = false;
+
+// DOM Elements
+const els = {
+  fileGrid: document.getElementById('fileGrid'),
+  fileList: document.getElementById('fileList'),
+  folderTree: document.getElementById('folderTree'),
+  breadcrumb: document.getElementById('breadcrumb'),
+  dropZone: document.getElementById('dropZone'),
+  emptyState: document.getElementById('emptyState'),
+  contextMenu: document.getElementById('contextMenu'),
+  itemCount: document.getElementById('itemCount'),
+  selectedCount: document.getElementById('selectedCount'),
+  btnPaste: document.getElementById('btnPaste'),
+  btnDownload: document.getElementById('btnDownload'),
+  btnDelete: document.getElementById('btnDelete'),
+  btnZip: document.getElementById('btnZip'),
+  btnUp: document.getElementById('btnUp'),
+  sidebar: document.getElementById('sidebar'),
+  sidebarOverlay: document.getElementById('sidebarOverlay'),
+};
+
+// Icon Map
+const iconMap = {
+  folder: { icon: 'fa-folder', color: '#ffc107' },
+  image: { icon: 'fa-file-image', color: '#9c27b0' },
+  video: { icon: 'fa-file-video', color: '#f44336' },
+  audio: { icon: 'fa-file-audio', color: '#2196f3' },
+  pdf: { icon: 'fa-file-pdf', color: '#ff5722' },
+  word: { icon: 'fa-file-word', color: '#2196f3' },
+  excel: { icon: 'fa-file-excel', color: '#4caf50' },
+  powerpoint: { icon: 'fa-file-powerpoint', color: '#ff9800' },
+  code: { icon: 'fa-file-code', color: '#607d8b' },
+  zip: { icon: 'fa-file-zipper', color: '#795548' },
+  text: { icon: 'fa-file-alt', color: '#9e9e9e' },
+  file: { icon: 'fa-file', color: '#757575' },
+};
+
+// Initialize
+async function init() {
+  // Load saved view mode
+  const savedView = localStorage.getItem('fm_viewMode');
+  if (savedView) viewMode = savedView;
+  updateViewMode();
+
+  // Load initial data
+  await Promise.all([
+    loadFolderTree(),
+    loadFiles()
+  ]);
+
+  // Setup event listeners
+  setupDragDrop();
+  setupKeyboard();
+  setupContextMenu();
+  setupClipboardPaste();
+
+  // Check URL params for path
+  const urlParams = new URLSearchParams(window.location.search);
+  const pathParam = urlParams.get('dir');
+  if (pathParam) {
+    navigateTo(decodeURIComponent(pathParam));
+  }
+}
+
+// Load Folder Tree
+async function loadFolderTree() {
+  try {
+    const res = await fetch('/fileman/api/tree?dir=&showHidden=' + showHidden);
+    const data = await res.json();
+    
+    if (!data.ok) throw new Error(data.error);
+
+    els.folderTree.innerHTML = `
+      <div class="fm-tree-item ${!currentPath ? 'active' : ''}" onclick="navigateTo('')">
+        <span class="fm-tree-toggle" style="visibility:hidden;"><i class="fa fa-chevron-right"></i></span>
+        <i class="fa fa-hdd" style="color:var(--fm-primary);"></i>
+        <span>Root</span>
+      </div>
+      ${renderTreeItems(data.dirs, '')}
+    `;
+  } catch (err) {
+    showToast('Error loading folders: ' + err.message, 'error');
+  }
+}
+
+function renderTreeItems(dirs, parentPath) {
+  if (!dirs || dirs.length === 0) return '';
+  
+  return `<div class="fm-tree-children expanded" data-parent="${parentPath}">
+    ${dirs.map(dir => `
+      <div class="fm-tree-item ${currentPath === dir.rel ? 'active' : ''}" data-path="${dir.rel}">
+        <span class="fm-tree-toggle" onclick="event.stopPropagation(); toggleTreeFolder('${dir.rel}', this)">
+          <i class="fa fa-chevron-right"></i>
+        </span>
+        <i class="fa fa-folder"></i>
+        <span onclick="navigateTo('${dir.rel}')">${escapeHtml(dir.name)}</span>
+      </div>
+      <div class="fm-tree-children" id="tree-${dir.rel.replace(/[^a-zA-Z0-9]/g, '-')}"></div>
+    `).join('')}
+  </div>`;
+}
+
+async function toggleTreeFolder(path, toggleEl) {
+  const container = document.getElementById('tree-' + path.replace(/[^a-zA-Z0-9]/g, '-'));
+  const isExpanded = container.classList.contains('expanded');
+  
+  if (isExpanded) {
+    container.classList.remove('expanded');
+    toggleEl.classList.remove('expanded');
+    toggleEl.innerHTML = '<i class="fa fa-chevron-right"></i>';
+  } else {
+    // Load children if empty
+    if (!container.dataset.loaded) {
+      try {
+        const res = await fetch('/fileman/api/tree?dir=' + encodeURIComponent(path) + '&showHidden=' + showHidden);
+        const data = await res.json();
+        if (data.ok && data.dirs.length > 0) {
+          container.innerHTML = renderTreeItems(data.dirs, path);
+        }
+        container.dataset.loaded = 'true';
+      } catch (err) {
+        console.error('Error loading tree:', err);
+      }
+    }
+    container.classList.add('expanded');
+    toggleEl.classList.add('expanded');
+    toggleEl.innerHTML = '<i class="fa fa-chevron-down"></i>';
+  }
+}
+
+// Load Files
+async function loadFiles() {
+  if (isSearching) return;
+
+  try {
+    showLoading(true);
+    const res = await fetch('/fileman/api/list?dir=' + encodeURIComponent(currentPath) + '&showHidden=' + showHidden);
+    const data = await res.json();
+    
+    if (!data.ok) throw new Error(data.error);
+
+    currentItems = data.items || [];
+    renderFiles();
+    updateBreadcrumb(data.currentPath, data.parentPath);
+    updateStatus();
+    
+    // Update Up button
+    els.btnUp.disabled = !data.parentPath && data.parentPath !== '';
+  } catch (err) {
+    showToast('Error loading files: ' + err.message, 'error');
+  } finally {
+    showLoading(false);
+  }
+}
+
+function renderFiles() {
+  // Clear selection
+  selectedItems.clear();
+  updateSelectionUI();
+
+  if (currentItems.length === 0) {
+    els.fileGrid.style.display = 'none';
+    els.fileList.style.display = 'none';
+    els.emptyState.style.display = 'flex';
+    return;
+  }
+
+  els.emptyState.style.display = 'none';
+
+  if (viewMode === 'grid') {
+    renderGrid();
+  } else {
+    renderList();
+  }
+}
+
+function renderGrid() {
+  els.fileGrid.style.display = 'grid';
+  els.fileList.style.display = 'none';
+
+  els.fileGrid.innerHTML = currentItems.map(item => {
+    const iconInfo = iconMap[item.icon] || iconMap.file;
+    const isImage = item.icon === 'image';
+    
+    return `
+      <div class="fm-grid-item" 
+           data-path="${item.path}" 
+           data-folder="${item.type === 'folder'}"
+           onclick="handleItemClick(event, '${item.path}', ${item.type === 'folder'})"
+           ondblclick="handleItemDblClick('${item.path}', ${item.type === 'folder'})"
+           oncontextmenu="handleItemContextMenu(event, '${item.path}', ${item.type === 'folder'}, '${item.icon}')">
+        <div class="fm-grid-icon ${item.icon}">
+          ${isImage && item.previewable ? `<img src="/fileman/api/download?path=${encodeURIComponent(item.path)}" loading="lazy" onerror="this.outerHTML='<i class=\\'fa ${iconInfo.icon}\\' style=\\'color:${iconInfo.color}\\'></i>'">` : `<i class="fa ${iconInfo.icon}" style="color:${iconInfo.color}"></i>`}
+        </div>
+        <div class="fm-grid-name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderList() {
+  els.fileGrid.style.display = 'none';
+  els.fileList.style.display = 'block';
+
+  els.fileList.innerHTML = `
+    <div class="fm-list-header">
+      <div><input type="checkbox" onchange="toggleSelectAll(this.checked)"></div>
+      <div>Name</div>
+      <div>Size</div>
+      <div>Modified</div>
+      <div></div>
+    </div>
+    ${currentItems.map(item => {
+      const iconInfo = iconMap[item.icon] || iconMap.file;
+      return `
+        <div class="fm-list-item" 
+             data-path="${item.path}" 
+             data-folder="${item.type === 'folder'}"
+             onclick="handleItemClick(event, '${item.path}', ${item.type === 'folder'})"
+             ondblclick="handleItemDblClick('${item.path}', ${item.type === 'folder'})"
+             oncontextmenu="handleItemContextMenu(event, '${item.path}', ${item.type === 'folder'}, '${item.icon}')">
+          <div class="fm-list-checkbox" onclick="event.stopPropagation()">
+            <input type="checkbox" onchange="toggleItemSelection('${item.path}', this.checked)">
+          </div>
+          <div class="fm-list-name">
+            <i class="fa ${iconInfo.icon} ${item.icon}"></i>
+            <span>${escapeHtml(item.name)}</span>
+          </div>
+          <div class="fm-list-size">${item.type === 'folder' ? item.itemCount + ' items' : formatSize(item.size)}</div>
+          <div class="fm-list-date">${formatDate(item.modified)}</div>
+          <div class="fm-list-actions">
+            <button onclick="event.stopPropagation(); downloadItem('${item.path}', ${item.type === 'folder'})" title="Download"><i class="fa fa-download"></i></button>
+            <button onclick="event.stopPropagation(); showRenameModal('${item.path}', ${item.type === 'folder'})" title="Rename"><i class="fa fa-edit"></i></button>
+            <button onclick="event.stopPropagation(); deleteItems([{path:'${item.path}',isFolder:${item.type === 'folder'}}])" title="Delete"><i class="fa fa-trash"></i></button>
+          </div>
+        </div>
+      `;
+    }).join('')}
+  `;
+}
+
+// Navigation
+function navigateTo(path) {
+  currentPath = path;
+  
+  // Update URL
+  const url = new URL(window.location);
+  if (path) {
+    url.searchParams.set('dir', path);
+  } else {
+    url.searchParams.delete('dir');
+  }
+  window.history.replaceState({}, '', url);
+
+  // Update tree selection
+  document.querySelectorAll('.fm-tree-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.path === path || (!path && !el.dataset.path));
+  });
+
+  loadFiles();
+}
+
+function goUp() {
+  if (!currentPath) return;
+  const parent = currentPath.includes('/') ? currentPath.substring(0, currentPath.lastIndexOf('/')) : '';
+  navigateTo(parent);
+}
+
+function refresh() {
+  loadFolderTree();
+  loadFiles();
+}
+
+function updateBreadcrumb(path, parentPath) {
+  const parts = path ? path.split('/') : [];
+  let html = `
+    <div class="fm-breadcrumb-item" onclick="navigateTo('')">
+      <i class="fa fa-home"></i> Home
+    </div>
+  `;
+
+  let currentBuildPath = '';
+  parts.forEach((part, index) => {
+    currentBuildPath = currentBuildPath ? `${currentBuildPath}/${part}` : part;
+    const isLast = index === parts.length - 1;
+    html += `<span class="fm-breadcrumb-separator"><i class="fa fa-chevron-right"></i></span>`;
+    html += `
+      <div class="fm-breadcrumb-item ${isLast ? 'fm-breadcrumb-current' : ''}" onclick="${isLast ? '' : `navigateTo('${currentBuildPath}')`}">
+        ${escapeHtml(part)}
+      </div>
+    `;
+  });
+
+  els.breadcrumb.innerHTML = html;
+}
+
+// View Mode
+function setViewMode(mode) {
+  viewMode = mode;
+  localStorage.setItem('fm_viewMode', mode);
+  updateViewMode();
+  renderFiles();
+}
+
+function updateViewMode() {
+  document.getElementById('btnGrid').classList.toggle('active', viewMode === 'grid');
+  document.getElementById('btnList').classList.toggle('active', viewMode === 'list');
+  document.getElementById('viewModeLabel').textContent = viewMode === 'grid' ? 'Grid View' : 'List View';
+}
+
+// Selection
+function handleItemClick(event, path, isFolder) {
+  // Handle Ctrl/Cmd click for multi-select
+  if (event.ctrlKey || event.metaKey) {
+    event.preventDefault();
+    toggleItemSelection(path, !selectedItems.has(path));
+    return;
+  }
+
+  // Regular click - single select
+  if (!event.shiftKey) {
+    selectedItems.clear();
+    selectedItems.add(path);
+    updateSelectionUI();
+  }
+}
+
+function handleItemDblClick(path, isFolder) {
+  if (isFolder) {
+    navigateTo(path);
+  } else {
+    previewFile(path, true);
+  }
+}
+
+function toggleItemSelection(path, selected) {
+  if (selected) {
+    selectedItems.add(path);
+  } else {
+    selectedItems.delete(path);
+  }
+  updateSelectionUI();
+}
+
+function toggleSelectAll(checked) {
+  if (checked) {
+    currentItems.forEach(item => selectedItems.add(item.path));
+  } else {
+    selectedItems.clear();
+  }
+  updateSelectionUI();
+}
+
+function updateSelectionUI() {
+  // Update grid/list item styling
+  document.querySelectorAll('.fm-grid-item, .fm-list-item').forEach(el => {
+    const path = el.dataset.path;
+    el.classList.toggle('selected', selectedItems.has(path));
+    
+    // Update checkbox in list view
+    const checkbox = el.querySelector('input[type="checkbox"]');
+    if (checkbox) checkbox.checked = selectedItems.has(path);
+  });
+
+  // Update toolbar buttons
+  const hasSelection = selectedItems.size > 0;
+  els.btnDownload.disabled = !hasSelection;
+  els.btnDelete.disabled = !hasSelection;
+  els.btnZip.disabled = !hasSelection;
+
+  // Update status bar
+  els.selectedCount.style.display = hasSelection ? 'inline' : 'none';
+  els.selectedCount.textContent = `${selectedItems.size} selected`;
+}
+
+// Context Menu
+function setupContextMenu() {
+  document.addEventListener('click', () => {
+    els.contextMenu.classList.remove('visible');
+  });
+
+  // Right-click on blank area of the content pane
+  document.getElementById('contentArea').addEventListener('contextmenu', (event) => {
+    // Only fire when the click target is the content area itself or the drop zone — not a file/folder item
+    if (event.target.closest('[oncontextmenu]')) return;
+    event.preventDefault();
+    showBackgroundContextMenu(event);
+  });
+}
+
+function showBackgroundContextMenu(event) {
+  contextItem = null;
+
+  // Show background-only items
+  ['ctxNew', 'ctxSortBy', 'ctxDividerBg'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'flex';
+  });
+  document.getElementById('ctxDividerBg').style.display = 'block';
+  document.getElementById('ctxPasteBg').style.display = 'flex';
+
+  // Hide item-specific options
+  ['ctxOpen', 'ctxPreview', 'ctxDownload', 'ctxRename', 'ctxCopy', 'ctxCut', 'ctxPaste',
+   'ctxZip', 'ctxUnzip', 'ctxDelete', 'ctxDividerTop', 'ctxDividerMid', 'ctxDividerDelete'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
+  updateSortIndicators();
+
+  const menuHeight = 196;
+  const x = Math.min(event.clientX, window.innerWidth - 220);
+  const y = Math.min(event.clientY, window.innerHeight - menuHeight);
+  els.contextMenu.style.left = x + 'px';
+  els.contextMenu.style.top = y + 'px';
+  els.contextMenu.classList.add('visible');
+}
+
+function handleItemContextMenu(event, path, isFolder, icon) {
+  event.preventDefault();
+  event.stopPropagation();
+  contextItem = { path, isFolder, icon };
+
+  // Hide background-only items
+  ['ctxNew', 'ctxSortBy', 'ctxPasteBg', 'ctxDividerBg'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
+  // Show item-specific options
+  ['ctxOpen', 'ctxDownload', 'ctxRename', 'ctxCopy', 'ctxCut',
+   'ctxZip', 'ctxDelete', 'ctxDividerTop', 'ctxDividerMid', 'ctxDividerDelete'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'flex';
+  });
+  ['ctxDividerTop', 'ctxDividerMid', 'ctxDividerDelete'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'block';
+  });
+
+  // Conditionals
+  document.getElementById('ctxPreview').style.display = isFolder ? 'none' : 'flex';
+  document.getElementById('ctxUnzip').style.display = icon === 'zip' ? 'flex' : 'none';
+  document.getElementById('ctxPaste').style.display = clipboard.items.length > 0 ? 'flex' : 'none';
+
+  // Position menu
+  const x = Math.min(event.clientX, window.innerWidth - 220);
+  const y = Math.min(event.clientY, window.innerHeight - 340);
+  els.contextMenu.style.left = x + 'px';
+  els.contextMenu.style.top = y + 'px';
+  els.contextMenu.classList.add('visible');
+
+  // Select this item if not already selected
+  if (!selectedItems.has(path)) {
+    selectedItems.clear();
+    selectedItems.add(path);
+    updateSelectionUI();
+  }
+}
+
+function contextOpen() {
+  if (contextItem.isFolder) {
+    navigateTo(contextItem.path);
+  } else {
+    previewFile(contextItem.path);
+  }
+}
+
+function contextPreview() {
+  previewFile(contextItem.path);
+}
+
+function contextDownload() {
+  const items = Array.from(selectedItems).map(path => ({
+    path,
+    isFolder: currentItems.find(i => i.path === path)?.type === 'folder'
+  }));
+  downloadItems(items);
+}
+
+function contextRename() {
+  const path = Array.from(selectedItems)[0] || contextItem.path;
+  const item = currentItems.find(i => i.path === path);
+  if (item) showRenameModal(path, item.type === 'folder');
+}
+
+function contextCopy() {
+  clipboard = {
+    items: Array.from(selectedItems).map(path => ({
+      path,
+      isFolder: currentItems.find(i => i.path === path)?.type === 'folder'
+    })),
+    action: 'copy'
+  };
+  showToast(`${clipboard.items.length} item(s) copied to clipboard`, 'success');
+}
+
+function contextCut() {
+  clipboard = {
+    items: Array.from(selectedItems).map(path => ({
+      path,
+      isFolder: currentItems.find(i => i.path === path)?.type === 'folder'
+    })),
+    action: 'cut'
+  };
+  showToast(`${clipboard.items.length} item(s) cut to clipboard`, 'success');
+}
+
+async function contextPaste() {
+  els.contextMenu.classList.remove('visible');
+
+  // Internal clipboard (copy/cut within file manager) takes priority
+  if (clipboard.items.length > 0) {
+    pasteItems();
+    return;
+  }
+
+  // Try to read screenshot/image from OS clipboard via Clipboard API (Chrome/Edge with permission)
+  if (navigator.clipboard && navigator.clipboard.read) {
+    try {
+      const clipItems = await navigator.clipboard.read();
+      const files = [];
+
+      for (const item of clipItems) {
+        for (const type of item.types) {
+          if (type.startsWith('image/')) {
+            const blob = await item.getType(type);
+            const now = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            const name = `screenshot_${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}.png`;
+            files.push(new File([blob], name, { type }));
+          }
+        }
+      }
+
+      if (files.length > 0) {
+        showToast(`Pasting ${files.length} image(s) from clipboard…`, 'info');
+        uploadFiles(files);
+        return;
+      }
+    } catch (err) {
+      // Permission denied or no clipboard access — fall through to guidance
+    }
+  }
+
+  // For files copied from Explorer/Finder, browsers only expose them during a real
+  // Ctrl+V keypress — no button click can trigger that. Guide the user.
+  showToast('To paste files from Explorer: Copy them first, then press Ctrl+V here', 'info');
+}
+
+function contextNewFolder() {
+  els.contextMenu.classList.remove('visible');
+  showNewFolderModal();
+}
+
+function contextNewFile() {
+  els.contextMenu.classList.remove('visible');
+  document.getElementById('newFileName').value = '';
+  document.getElementById('newFileModal').classList.add('visible');
+  setTimeout(() => document.getElementById('newFileName').focus(), 100);
+}
+
+async function createNewFile() {
+  const name = document.getElementById('newFileName').value.trim();
+  if (!name) { showToast('Please enter a file name', 'error'); return; }
+
+  const filePath = currentPath ? currentPath + '/' + name : name;
+
+  try {
+    const res = await fetch('/fileman/api/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path: filePath, content: '' })
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error);
+    closeModal('newFileModal');
+    showToast('File created: ' + name, 'success');
+    loadFiles();
+  } catch (err) {
+    showToast('Error creating file: ' + err.message, 'error');
+  }
+}
+
+// Sort state
+let sortField = 'name';   // 'name' | 'date' | 'size' | 'type'
+let sortDir   = 'asc';    // 'asc'  | 'desc'
+
+function applySortOrder(field, dir) {
+  sortField = field;
+  sortDir   = dir;
+  els.contextMenu.classList.remove('visible');
+  updateSortIndicators();
+
+  const folders = currentItems.filter(i => i.type === 'folder');
+  const files   = currentItems.filter(i => i.type !== 'folder');
+
+  const compareFn = (a, b) => {
+    let valA, valB;
+    if (field === 'name')  { valA = a.name.toLowerCase(); valB = b.name.toLowerCase(); }
+    if (field === 'date')  { valA = new Date(a.modified);  valB = new Date(b.modified); }
+    if (field === 'size')  { valA = a.size || 0;           valB = b.size || 0; }
+    if (field === 'type')  { valA = (a.name.split('.').pop() || '').toLowerCase(); valB = (b.name.split('.').pop() || '').toLowerCase(); }
+    if (valA < valB) return dir === 'asc' ? -1 : 1;
+    if (valA > valB) return dir === 'asc' ?  1 : -1;
+    return 0;
+  };
+
+  // Folders always stay on top, sorted among themselves; files sorted after
+  folders.sort(compareFn);
+  files.sort(compareFn);
+  currentItems = [...folders, ...files];
+  renderFiles();
+}
+
+function updateSortIndicators() {
+  const sortIds = ['sortNameAsc','sortNameDesc','sortDateDesc','sortDateAsc','sortSizeDesc','sortSizeAsc','sortType'];
+  const activeMap = {
+    'name-asc':  'sortNameAsc',  'name-desc':  'sortNameDesc',
+    'date-desc': 'sortDateDesc', 'date-asc':   'sortDateAsc',
+    'size-desc': 'sortSizeDesc', 'size-asc':   'sortSizeAsc',
+    'type-asc':  'sortType'
+  };
+  const activeId = activeMap[`${sortField}-${sortDir}`];
+  sortIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('sort-active', id === activeId);
+  });
+}
+
+function contextDelete() {
+  const items = Array.from(selectedItems).map(path => ({
+    path,
+    isFolder: currentItems.find(i => i.path === path)?.type === 'folder'
+  }));
+  deleteItems(items);
+}
+
+function contextZip() {
+  showZipModal();
+}
+
+function contextUnzip() {
+  unzipFile(contextItem.path);
+}
+
+// Actions
+// Called by Paste button - same as Ctrl+V
+async function pasteFromClipboard() {
+  // Try internal clipboard first
+  if (clipboard.items.length > 0) {
+    pasteItems();
+    return;
+  }
+  
+  // If no internal clipboard, show tip
+  showToast('Clipboard empty. Select files and press Ctrl+C, or copy files in Explorer and press Ctrl+V.', 'info');
+}
+
+async function downloadSelected() {
+  const items = Array.from(selectedItems).map(path => ({
+    path,
+    isFolder: currentItems.find(i => i.path === path)?.type === 'folder'
+  }));
+  downloadItems(items);
+}
+
+function downloadItems(items) {
+  if (items.length === 0) return;
+  
+  if (items.length === 1 && !items[0].isFolder) {
+    // Single file - direct download
+    window.location.href = '/fileman/api/download?path=' + encodeURIComponent(items[0].path);
+  } else {
+    // Multiple items or folder - zip download
+    fetch('/fileman/api/bulk-download', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items })
+    })
+    .then(res => res.blob())
+    .then(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'download.zip';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    })
+    .catch(err => showToast('Download failed: ' + err.message, 'error'));
+  }
+}
+
+function downloadItem(path, isFolder) {
+  downloadItems([{ path, isFolder }]);
+}
+
+function downloadCurrent() {
+  if (currentPreviewItem) {
+    downloadItem(currentPreviewItem.path, false);
+  }
+}
+
+async function deleteItems(items) {
+  if (!items.length) return;
+  
+  const names = items.map(i => i.path.split('/').pop()).join(', ');
+  if (!confirm(`Delete ${items.length} item(s)?\n${names}`)) return;
+
+  try {
+    const res = await fetch('/fileman/api/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items })
+    });
+    const data = await res.json();
+    
+    if (data.ok) {
+      const successCount = data.results.filter(r => r.success).length;
+      showToast(`Deleted ${successCount}/${items.length} items`, 'success');
+      loadFiles();
+      loadFolderTree();
+    } else {
+      throw new Error(data.error);
+    }
+  } catch (err) {
+    showToast('Delete failed: ' + err.message, 'error');
+  }
+}
+
+async function deleteSelected() {
+  const items = Array.from(selectedItems).map(path => ({
+    path,
+    isFolder: currentItems.find(i => i.path === path)?.type === 'folder'
+  }));
+  await deleteItems(items);
+}
+
+// Modals
+function showNewFolderModal() {
+  document.getElementById('newFolderName').value = '';
+  document.getElementById('newFolderModal').classList.add('visible');
+  setTimeout(() => document.getElementById('newFolderName').focus(), 100);
+}
+
+function showRenameModal(path, isFolder) {
+  const name = path.split('/').pop();
+  document.getElementById('renameInput').value = name;
+  document.getElementById('renameModal').dataset.path = path;
+  document.getElementById('renameModal').dataset.isFolder = isFolder;
+  document.getElementById('renameModal').classList.add('visible');
+  setTimeout(() => document.getElementById('renameInput').focus(), 100);
+}
+
+function showZipModal() {
+  const items = Array.from(selectedItems);
+  const defaultName = items.length === 1 ? items[0].split('/').pop() + '.zip' : 'archive.zip';
+  document.getElementById('zipNameInput').value = defaultName;
+  document.getElementById('zipModal').classList.add('visible');
+  setTimeout(() => document.getElementById('zipNameInput').focus(), 100);
+}
+
+function showUploadModal() {
+  document.getElementById('uploadModal').classList.add('visible');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('visible');
+}
+
+async function createNewFolder() {
+  const name = document.getElementById('newFolderName').value.trim();
+  if (!name) return;
+
+  try {
+    const res = await fetch('/fileman/api/mkdir', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dir: currentPath, name })
+    });
+    const data = await res.json();
+    
+    if (data.ok) {
+      showToast('Folder created', 'success');
+      closeModal('newFolderModal');
+      loadFiles();
+      loadFolderTree();
+    } else {
+      throw new Error(data.error);
+    }
+  } catch (err) {
+    showToast('Error: ' + err.message, 'error');
+  }
+}
+
+async function confirmRename() {
+  const newName = document.getElementById('renameInput').value.trim();
+  if (!newName) return;
+
+  const oldPath = document.getElementById('renameModal').dataset.path;
+  const isFolder = document.getElementById('renameModal').dataset.isFolder === 'true';
+  const oldName = oldPath.split('/').pop();
+  const dir = oldPath.includes('/') ? oldPath.substring(0, oldPath.lastIndexOf('/')) : '';
+
+  try {
+    const res = await fetch('/fileman/api/rename', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dir, oldName, newName, isFolder })
+    });
+    const data = await res.json();
+    
+    if (data.ok) {
+      showToast('Renamed successfully', 'success');
+      closeModal('renameModal');
+      loadFiles();
+      loadFolderTree();
+    } else {
+      throw new Error(data.error);
+    }
+  } catch (err) {
+    showToast('Error: ' + err.message, 'error');
+  }
+}
+
+async function confirmZip() {
+  const zipName = document.getElementById('zipNameInput').value.trim();
+  if (!zipName) return;
+
+  const items = Array.from(selectedItems).map(path => ({
+    path,
+    isFolder: currentItems.find(i => i.path === path)?.type === 'folder'
+  }));
+
+  try {
+    const res = await fetch('/fileman/api/zip', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dir: currentPath, items, zipName })
+    });
+    const data = await res.json();
+    
+    if (data.ok) {
+      showToast(data.message, 'success');
+      closeModal('zipModal');
+      loadFiles();
+    } else {
+      throw new Error(data.error);
+    }
+  } catch (err) {
+    showToast('Error: ' + err.message, 'error');
+  }
+}
+
+async function unzipFile(filePath) {
+  try {
+    const res = await fetch('/fileman/api/unzip', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dir: currentPath, file: filePath })
+    });
+    const data = await res.json();
+    
+    if (data.ok) {
+      showToast('Extracted successfully', 'success');
+      loadFiles();
+      loadFolderTree();
+    } else {
+      throw new Error(data.error);
+    }
+  } catch (err) {
+    showToast('Error: ' + err.message, 'error');
+  }
+}
+
+// Preview State
+let isEditMode = false;
+let originalContent = '';
+let currentFileLanguage = '';
+let cmEditor = null;
+
+// Language mapping for Prism
+const languageMap = {
+  '.js': 'javascript',
+  '.ts': 'typescript',
+  '.jsx': 'jsx',
+  '.tsx': 'tsx',
+  '.html': 'html',
+  '.htm': 'html',
+  '.css': 'css',
+  '.scss': 'scss',
+  '.less': 'less',
+  '.json': 'json',
+  '.xml': 'xml',
+  '.svg': 'xml',
+  '.yaml': 'yaml',
+  '.yml': 'yaml',
+  '.py': 'python',
+  '.rb': 'ruby',
+  '.php': 'php',
+  '.java': 'java',
+  '.cpp': 'cpp',
+  '.c': 'c',
+  '.h': 'c',
+  '.cs': 'csharp',
+  '.go': 'go',
+  '.rs': 'rust',
+  '.swift': 'swift',
+  '.sql': 'sql',
+  '.sh': 'bash',
+  '.bash': 'bash',
+  '.zsh': 'bash',
+  '.ps1': 'powershell',
+  '.md': 'markdown',
+  '.txt': 'text',
+  '.log': 'text',
+  '.env': 'bash',
+  '.ini': 'ini',
+  '.conf': 'text',
+  '.dockerfile': 'docker',
+  '.vue': 'html',
+  '.ejs': 'html'
+};
+
+function getLanguageFromFilename(filename) {
+  const ext = filename.substring(filename.lastIndexOf('.')).toLowerCase();
+  return languageMap[ext] || 'text';
+}
+
+// CodeMirror mode mapping (language name → CM mode string)
+const cmModeMap = {
+  'javascript': 'javascript',
+  'typescript': 'javascript',
+  'html':       'htmlmixed',
+  'css':        'css',
+  'json':       'javascript',
+  'yaml':       'yaml',
+  'python':     'python',
+  'bash':       'shell',
+  'sql':        'sql',
+  'markdown':   'markdown',
+  'xml':        'xml',
+  'text':       null
+};
+
+// Preview
+async function previewFile(path, startInEditMode = false) {
+  try {
+    const res = await fetch('/fileman/api/preview?path=' + encodeURIComponent(path));
+    const data = await res.json();
+
+    if (!data.ok) throw new Error(data.error);
+
+    currentPreviewItem = { path, content: data.content, name: data.name };
+    originalContent = data.content || '';
+    isEditMode = false;
+    currentFileLanguage = getLanguageFromFilename(data.name || path);
+
+    document.getElementById('previewTitle').innerHTML = escapeHtml(data.name || 'Preview');
+
+    if (data.type === 'image') {
+      document.getElementById('previewContent').innerHTML = `<img src="${data.data}" alt="Preview" style="max-width:100%; max-height:70vh; object-fit:contain;">`;
+    } else {
+      isEditMode = true;
+      renderEditor(originalContent, currentFileLanguage);
+    }
+    document.getElementById('previewModal').classList.add('visible');
+  } catch (err) {
+    showToast('Cannot preview: ' + err.message, 'error');
+  }
+}
+
+function renderCodePreview(content, language) {
+  const contentEl = document.getElementById('previewContent');
+  const lines = content.split('\n');
+  const lineNumbers = lines.map((_, i) => i + 1).join('\n');
+  
+  const langClass = language === 'text' ? '' : `class="language-${language}"`;
+  
+  contentEl.innerHTML = `
+    <div class="fm-code-preview">
+      <div class="fm-line-numbers">${escapeHtml(lineNumbers)}</div>
+      <div class="fm-code-content">
+        <pre><code ${langClass}>${escapeHtml(content)}</code></pre>
+      </div>
+    </div>
+  `;
+  
+  // Apply syntax highlighting
+  if (language !== 'text' && window.Prism) {
+    Prism.highlightAllUnder(contentEl);
+  }
+}
+
+function renderEditor(content, language) {
+  const contentEl = document.getElementById('previewContent');
+  const ext = currentPreviewItem.name ? currentPreviewItem.name.substring(currentPreviewItem.name.lastIndexOf('.')) : '';
+
+  // Destroy any existing CodeMirror instance
+  if (cmEditor) {
+    try { cmEditor.toTextArea(); } catch(e) {}
+    cmEditor = null;
+  }
+
+  contentEl.innerHTML = `
+    <div class="fm-editor-container">
+      <div class="fm-editor-toolbar">
+        <button class="fm-btn fm-btn-success" onclick="saveFile()">
+          <i class="fa fa-save"></i> Save
+        </button>
+        <button class="fm-btn" onclick="closeModal('previewModal')">
+          <i class="fa fa-times"></i> Cancel
+        </button>
+        <span class="fm-unsaved-indicator" id="unsavedIndicator" style="display:none;">
+          Unsaved changes
+        </span>
+        <span class="fm-editor-info">
+          ${escapeHtml(ext)} • ${content.length} chars • ${content.split('\\n').length} lines
+        </span>
+      </div>
+      <div id="cmEditorContainer"></div>
+    </div>
+  `;
+
+  setTimeout(() => {
+    const container = document.getElementById('cmEditorContainer');
+    if (!container || typeof CodeMirror === 'undefined') return;
+    const mode = cmModeMap[language] !== undefined ? cmModeMap[language] : null;
+    cmEditor = CodeMirror(container, {
+      value: content,
+      mode: mode,
+      theme: 'dracula',
+      lineNumbers: true,
+      lineWrapping: true,
+      autofocus: true,
+      indentWithTabs: true,
+      tabSize: 2
+    });
+    cmEditor.setSize('100%', '100%');
+    cmEditor.on('change', () => {
+      const indicator = document.getElementById('unsavedIndicator');
+      if (indicator) {
+        indicator.style.display = cmEditor.getValue() !== originalContent ? 'inline-flex' : 'none';
+      }
+    });
+  }, 50);
+}
+
+
+function onEditorChange(value) {
+  // Legacy handler kept for safety; change tracking is now handled by CodeMirror's change event
+  const indicator = document.getElementById('unsavedIndicator');
+  if (indicator) {
+    indicator.style.display = value !== originalContent ? 'inline-flex' : 'none';
+  }
+}
+
+async function saveFile() {
+  if (!cmEditor) return;
+
+  const newContent = cmEditor.getValue();
+  const saveBtn = document.querySelector('.fm-btn-success');
+  
+  // Show loading
+  const originalText = saveBtn.innerHTML;
+  saveBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Saving...';
+  saveBtn.disabled = true;
+  
+  try {
+    const res = await fetch('/fileman/api/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        path: currentPreviewItem.path,
+        content: newContent
+      })
+    });
+    
+    const data = await res.json();
+    
+    if (data.ok) {
+      originalContent = newContent;
+      currentPreviewItem.content = newContent;
+      
+      // Hide unsaved indicator
+      const indicator = document.getElementById('unsavedIndicator');
+      if (indicator) indicator.style.display = 'none';
+      
+      showToast('File saved successfully', 'success');
+      
+      // Refresh file list to show updated size/modified time
+      loadFiles();
+    } else {
+      throw new Error(data.error);
+    }
+  } catch (err) {
+    showToast('Save failed: ' + err.message, 'error');
+  } finally {
+    saveBtn.innerHTML = originalText;
+    saveBtn.disabled = false;
+  }
+}
+
+// Upload
+function setupDragDrop() {
+  const contentArea = document.getElementById('contentArea');
+  
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    contentArea.addEventListener(eventName, preventDefaults, false);
+  });
+
+  function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    contentArea.addEventListener(eventName, () => {
+      els.dropZone.classList.add('active');
+    }, false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    contentArea.addEventListener(eventName, (e) => {
+      if (eventName === 'dragleave' && e.target !== contentArea) return;
+      els.dropZone.classList.remove('active');
+    }, false);
+  });
+
+  contentArea.addEventListener('drop', async (e) => {
+    const items = e.dataTransfer.items;
+    if (!items || items.length === 0) return;
+    
+    showToast('Scanning dropped items...', 'info');
+    
+    // Collect all files recursively from folders
+    const allFiles = [];
+    
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const entry = item.webkitGetAsEntry ? item.webkitGetAsEntry() : null;
+      
+      if (entry) {
+        // Start with empty path, traverseEntry will build the full path
+        await traverseEntry(entry, '', allFiles);
+      } else {
+        // Fallback to File object
+        const file = item.getAsFile();
+        if (file) allFiles.push(file);
+      }
+    }
+    
+    if (allFiles.length > 0) {
+      showToast(`Uploading ${allFiles.length} file(s)...`, 'info');
+      uploadFiles(allFiles);
+    } else {
+      showToast('No files found to upload', 'error');
+    }
+  }, false);
+}
+
+// Recursively traverse directory entry
+// currentPath is the path up to this point (e.g., "" or "Mei16_Sock/" or "Mei16_Sock/subfolder/")
+async function traverseEntry(entry, currentPath, fileList) {
+  if (entry.isFile) {
+    return new Promise((resolve) => {
+      entry.file((file) => {
+        // Full path = current path + file name
+        const fullPath = currentPath + file.name;
+        Object.defineProperty(file, 'webkitRelativePath', {
+          value: fullPath,
+          writable: false
+        });
+        fileList.push(file);
+        resolve();
+      }, () => resolve());
+    });
+  } else if (entry.isDirectory) {
+    const dirReader = entry.createReader();
+    return new Promise((resolve) => {
+      const readEntries = () => {
+        dirReader.readEntries(async (entries) => {
+          if (entries.length === 0) {
+            resolve();
+            return;
+          }
+          
+          // For children, the path includes this directory name
+          const childPath = currentPath + entry.name + '/';
+          const promises = entries.map(childEntry => 
+            traverseEntry(childEntry, childPath, fileList)
+          );
+          await Promise.all(promises);
+          
+          // Continue reading (Chrome returns entries in batches)
+          readEntries();
+        }, () => resolve());
+      };
+      readEntries();
+    });
+  }
+}
+
+// Desktop File Picker using File System Access API (Modern Browsers)
+async function openDesktopFilePicker() {
+  // Check if API is supported
+  if (!('showOpenFilePicker' in window)) {
+    showToast('Desktop picker not supported in this browser. Use the drag & drop area instead.', 'error');
+    return;
+  }
+  
+  try {
+    // Open system file picker
+    const fileHandles = await window.showOpenFilePicker({
+      multiple: true,
+      types: [
+        { description: 'All Files', accept: { '*/*': [] } }
+      ]
+    });
+    
+    if (fileHandles.length === 0) return;
+    
+    // Convert FileSystemFileHandle to File objects
+    const files = [];
+    for (const handle of fileHandles) {
+      const file = await handle.getFile();
+      files.push(file);
+    }
+    
+    // Upload the selected files
+    if (files.length > 0) {
+      showToast(`Selected ${files.length} file(s) from desktop`, 'success');
+      uploadFiles(files);
+      closeModal('uploadModal');
+    }
+  } catch (err) {
+    if (err.name !== 'AbortError') {
+      console.error('Desktop picker error:', err);
+      showToast('Error accessing desktop files: ' + err.message, 'error');
+    }
+  }
+}
+
+function handleFileSelect(files) {
+  if (files.length) uploadFiles(files);
+  closeModal('uploadModal');
+}
+
+async function uploadFiles(files) {
+  const progressEl    = document.getElementById('uploadProgress');
+  const fillEl        = document.getElementById('uploadFill');
+  const percentEl     = document.getElementById('uploadPercent');
+  const bytesEl       = document.getElementById('uploadBytes');
+  const currentFileEl = document.getElementById('uploadCurrentFile');
+
+  // Total declared bytes from client File objects
+  const totalDeclared = Array.from(files).reduce((s, f) => s + f.size, 0);
+
+  progressEl.classList.add('visible');
+  if (bytesEl) bytesEl.textContent = '';
+  if (currentFileEl) {
+    const names = Array.from(files).map(f => f.name);
+    currentFileEl.textContent = names.length === 1 ? `↑ ${names[0]}` : `↑ ${names.length} files`;
+  }
+
+  const formData = new FormData();
+  formData.append('dir', currentPath);
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    // Check if file has relative path (from folder drag)
+    const relativePath = file.webkitRelativePath || '';
+    if (relativePath) {
+      // Create a new File object with the path as the name
+      // This allows multer to receive the full path like "Mei16_Sock/file.js"
+      const newFile = new File([file], relativePath, { type: file.type });
+      formData.append('files', newFile);
+    } else {
+      formData.append('files', file);
+    }
+  }
+
+  try {
+    const xhr = new XMLHttpRequest();
+
+    xhr.upload.addEventListener('progress', (e) => {
+      if (e.lengthComputable) {
+        const percent = Math.round((e.loaded / e.total) * 100);
+        fillEl.style.width = percent + '%';
+        percentEl.textContent = percent + '%';
+        if (bytesEl) bytesEl.textContent = `${formatBytes(e.loaded)} / ${formatBytes(e.total)}`;
+      }
+    });
+
+    xhr.addEventListener('load', () => {
+      progressEl.classList.remove('visible');
+      if (currentFileEl) currentFileEl.textContent = '';
+      if (bytesEl) bytesEl.textContent = '';
+
+      if (xhr.status === 200) {
+        const data = JSON.parse(xhr.responseText);
+        if (data.ok) {
+          const v = data.verification;
+          if (v) {
+            if (v.verified) {
+              showToast(`Upload verified: ${formatBytes(v.totalSavedBytes)} — ${data.files.length} file${data.files.length !== 1 ? 's' : ''}`, 'success');
+            } else {
+              // Show general mismatch or per-file mismatches
+              const failed = data.files.filter(f => !f.verified);
+              if (failed.length) {
+                failed.forEach(f => {
+                  showToast(`⚠️ Upload mismatch: ${f.name} — received ${formatBytes(f.savedSize)}, expected ${formatBytes(f.declaredSize)}`, 'warning');
+                });
+              } else {
+                showToast(`⚠️ Upload mismatch: received ${formatBytes(v.totalSavedBytes)}, expected ${formatBytes(v.totalDeclaredBytes)}`, 'warning');
+              }
+            }
+          } else {
+            showToast(data.message, 'success');
+          }
+          loadFiles();
+        } else {
+          showToast('Upload failed: ' + data.error, 'error');
+        }
+      } else {
+        showToast('Upload failed', 'error');
+      }
+    });
+
+    xhr.addEventListener('error', () => {
+      progressEl.classList.remove('visible');
+      if (currentFileEl) currentFileEl.textContent = '';
+      showToast('Upload failed', 'error');
+    });
+
+    xhr.open('POST', '/fileman/api/upload');
+    xhr.send(formData);
+  } catch (err) {
+    progressEl.classList.remove('visible');
+    showToast('Upload error: ' + err.message, 'error');
+  }
+}
+
+// Search
+async function handleSearch(query) {
+  if (!query.trim()) {
+    isSearching = false;
+    loadFiles();
+    return;
+  }
+
+  isSearching = true;
+  try {
+    showLoading(true);
+    const res = await fetch('/fileman/api/search?dir=' + encodeURIComponent(currentPath) + '&q=' + encodeURIComponent(query));
+    const data = await res.json();
+    
+    if (data.ok) {
+      currentItems = data.results.map(r => ({
+        ...r,
+        type: r.isFolder ? 'folder' : 'file',
+        icon: r.icon
+      }));
+      renderFiles();
+      els.itemCount.textContent = `${data.count} results`;
+    }
+  } catch (err) {
+    showToast('Search error: ' + err.message, 'error');
+  } finally {
+    showLoading(false);
+  }
+}
+
+// Keyboard Shortcuts
+function setupKeyboard() {
+  document.addEventListener('keydown', (e) => {
+    // Delete key
+    if (e.key === 'Delete' && selectedItems.size > 0) {
+      deleteSelected();
+    }
+    
+    // Ctrl+A - Select all
+    if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+      e.preventDefault();
+      currentItems.forEach(item => selectedItems.add(item.path));
+      updateSelectionUI();
+    }
+    
+    // Ctrl+C - Copy selected files
+    if ((e.ctrlKey || e.metaKey) && e.key === 'c' && selectedItems.size > 0) {
+      e.preventDefault();
+      const items = Array.from(selectedItems).map(path => ({
+        path,
+        isFolder: currentItems.find(i => i.path === path)?.type === 'folder'
+      }));
+      clipboard = { items, action: 'copy' };
+      clipboardTimestamp = Date.now(); // Record when we copied
+      showToast(`${items.length} item(s) copied to clipboard`, 'success');
+    }
+    
+    // Ctrl+X - Cut selected files  
+    if ((e.ctrlKey || e.metaKey) && e.key === 'x' && selectedItems.size > 0) {
+      e.preventDefault();
+      const items = Array.from(selectedItems).map(path => ({
+        path,
+        isFolder: currentItems.find(i => i.path === path)?.type === 'folder'
+      }));
+      clipboard = { items, action: 'cut' };
+      clipboardTimestamp = Date.now(); // Record when we cut
+      showToast(`${items.length} item(s) cut to clipboard`, 'success');
+    }
+    
+    // Escape - Close modals/context menu
+    if (e.key === 'Escape') {
+      els.contextMenu.classList.remove('visible');
+      document.querySelectorAll('.fm-modal-overlay').forEach(el => el.classList.remove('visible'));
+    }
+    
+    // F5 - Refresh
+    if (e.key === 'F5') {
+      e.preventDefault();
+      refresh();
+    }
+    
+    // Ctrl+S - Save (when in edit mode)
+    if (isEditMode && (e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      saveFile();
+    }
+    
+    // Ctrl+V - Paste from OS clipboard
+    if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+      // Don't prevent default immediately - let the paste event handler catch it
+      // The paste event has access to e.clipboardData which works better
+    }
+  });
+}
+
+// Global variables for clipboard
+let pendingPaste = null;
+let clipboardTimestamp = 0; // When internal clipboard was last updated
+
+async function pasteItems() {
+  if (clipboard.items.length === 0) return;
+
+  const isCopy = clipboard.action === 'copy';
+  
+  // Check for conflicts for both copy and move operations
+  try {
+    showToast('Checking for conflicts...', 'info');
+    const res = await fetch('/fileman/api/check-conflicts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        items: clipboard.items,
+        targetDir: currentPath
+      })
+    });
+    const data = await res.json();
+
+    if (data.ok && data.conflicts.length > 0) {
+      // Show conflict modal
+      showConflictModal(data.conflicts, isCopy);
+      pendingPaste = { items: clipboard.items, isCopy };
+    } else {
+      // No conflicts, proceed directly with default resolution
+      await executePaste(isCopy ? 'rename' : 'overwrite');
+    }
+  } catch (err) {
+    showToast('Error checking conflicts: ' + err.message, 'error');
+    // Fall back to direct paste
+    await executePaste(isCopy ? 'rename' : 'overwrite');
+  }
+}
+
+function showConflictModal(conflicts, isCopy) {
+  const listEl = document.getElementById('conflictList');
+  const actionText = isCopy ? 'copy' : 'move';
+  
+  // Update modal title based on action
+  const titleEl = document.querySelector('#conflictModal .fm-modal-title');
+  if (titleEl) {
+    titleEl.innerHTML = `<i class="fa fa-exclamation-triangle" style="color: #f0ad4e;"></i> ${isCopy ? 'Copy' : 'Move'} Conflict`;
+  }
+  
+  listEl.innerHTML = conflicts.map(c => `
+    <div style="padding: 8px; border-bottom: 1px solid var(--fm-border); display: flex; justify-content: space-between; align-items: center;">
+      <span style="font-weight: 500;">${escapeHtml(c.name)}</span>
+      <span style="font-size: 12px; color: var(--fm-text-muted);">${c.isFolder ? 'Folder' : formatSize(c.existingSize)}</span>
+    </div>
+  `).join('');
+  
+  document.getElementById('conflictModal').classList.add('visible');
+}
+
+async function resolveConflicts(resolution) {
+  closeModal('conflictModal');
+  
+  if (!pendingPaste) return;
+  
+  await executePaste(resolution);
+  pendingPaste = null;
+}
+
+async function executePaste(conflictResolution) {
+  const isCopy = clipboard.action === 'copy';
+  const endpoint = isCopy ? '/fileman/api/copy' : '/fileman/api/move';
+  const totalItems = clipboard.items.length;
+
+  // Show copy progress widget
+  showCopyProgress({ state: 'copying', total: totalItems, action: clipboard.action });
+
+  try {
+    const body = {
+      items: clipboard.items,
+      targetDir: currentPath
+    };
+    
+    // Only add conflictResolution for copy operations
+    if (isCopy) {
+      body.conflictResolution = conflictResolution;
+    }
+    
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+
+    if (data.ok) {
+      showCopyProgress({ state: 'done', data, action: clipboard.action });
+
+      if (!isCopy) {
+        clipboard = { items: [], action: null };
+      }
+
+      loadFiles();
+      loadFolderTree();
+    } else {
+      showCopyProgress({ state: 'hide' });
+      throw new Error(data.error);
+    }
+  } catch (err) {
+    showCopyProgress({ state: 'hide' });
+    showToast('Error: ' + err.message, 'error');
+  }
+}
+
+// Mobile Sidebar
+function toggleSidebar() {
+  els.sidebar.classList.toggle('open');
+  els.sidebarOverlay.classList.toggle('visible');
+}
+
+// Toast Notifications
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `fm-toast ${type}`;
+  
+  const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+  toast.innerHTML = `<i class="fa ${icon}"></i> <span>${escapeHtml(message)}</span>`;
+  
+  container.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(100%)';
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
+}
+
+// Loading State
+function showLoading(show) {
+  if (show) {
+    els.fileGrid.style.opacity = '0.5';
+    els.fileList.style.opacity = '0.5';
+  } else {
+    els.fileGrid.style.opacity = '1';
+    els.fileList.style.opacity = '1';
+  }
+}
+
+// Status Update
+function updateStatus() {
+  const folderCount = currentItems.filter(i => i.type === 'folder').length;
+  const fileCount = currentItems.filter(i => i.type === 'file').length;
+  
+  let text = '';
+  if (folderCount > 0) text += `${folderCount} folder${folderCount > 1 ? 's' : ''}`;
+  if (folderCount > 0 && fileCount > 0) text += ', ';
+  if (fileCount > 0) text += `${fileCount} file${fileCount > 1 ? 's' : ''}`;
+  if (text === '') text = '0 items';
+  
+  els.itemCount.textContent = text;
+}
+
+// Helpers
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function formatSize(bytes) {
+  if (bytes === 0) return '0 B';
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  return (bytes / Math.pow(1024, i)).toFixed(i > 0 ? 1 : 0) + ' ' + units[i];
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr);
+  return d.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
+// Clipboard Paste handler (Ctrl+V)
+// Smart detection: Uses internal clipboard if copied recently (within 30 seconds)
+function setupClipboardPaste() {
+  document.addEventListener('paste', (e) => {
+    // Don't intercept paste inside text inputs, textareas, or code editors
+    const tag = e.target.tagName.toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
+    if (e.target.closest('.CodeMirror')) return;
+
+    const cd = e.clipboardData || window.clipboardData;
+    if (!cd) return;
+
+    const now = Date.now();
+    const internalClipboardAge = now - clipboardTimestamp;
+    const hasInternalClipboard = clipboard.items.length > 0;
+    const hasOSFiles = cd.files && cd.files.length > 0;
+    const hasScreenshot = Array.from(cd.items || []).some(it => it.kind === 'file' && it.type.startsWith('image/'));
+
+    // If internal clipboard was used within last 30 seconds, prefer it
+    if (hasInternalClipboard && internalClipboardAge < 30000) {
+      e.preventDefault();
+      pasteItems();
+      return;
+    }
+
+    // ── Case 1: Files copied from OS Explorer / Finder ──
+    if (hasOSFiles) {
+      e.preventDefault();
+      const allFiles = Array.from(cd.files);
+      
+      // Filter out folders (files with size 0 and no type are likely folders)
+      const files = allFiles.filter(f => f.size > 0 || f.type);
+      const folders = allFiles.filter(f => f.size === 0 && !f.type);
+      
+      if (folders.length > 0) {
+        showToast(`⚠️ ${folders.length} folder(s) skipped. Folders cannot be pasted - use Zip or Drag & Drop instead.`, 'warning');
+      }
+      
+      if (files.length > 0) {
+        showToast(`Uploading ${files.length} file(s) from PC...`, 'info');
+        uploadFiles(files);
+      }
+      return;
+    }
+
+    // ── Case 2: Image data (screenshot, snipping tool, etc.) ──
+    if (hasScreenshot) {
+      const items = Array.from(cd.items || []);
+      const imageItem = items.find(it => it.kind === 'file' && it.type.startsWith('image/'));
+      if (imageItem) {
+        e.preventDefault();
+        const blob = imageItem.getAsFile();
+        if (!blob) return;
+
+        // Name the file: screenshot_YYYYMMDD_HHmmss.png
+        const pad = n => String(n).padStart(2, '0');
+        const name = `screenshot_${now.getFullYear()}${pad(new Date().getMonth()+1)}${pad(new Date().getDate())}_${pad(new Date().getHours())}${pad(new Date().getMinutes())}${pad(new Date().getSeconds())}.png`;
+        const file = new File([blob], name, { type: blob.type });
+
+        showToast(`Uploading screenshot...`, 'info');
+        uploadFiles([file]);
+      }
+      return;
+    }
+
+    // ── Case 3: Internal clipboard (older than 30 seconds) ──
+    if (hasInternalClipboard) {
+      e.preventDefault();
+      pasteItems();
+    }
+  });
+}
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+<%- include('partials/footer') %>

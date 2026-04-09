@@ -1,0 +1,601 @@
+<%- include('partials/header') %>
+
+<style>
+  .tree ul { margin: 0; padding-left: 14px; border-left: 1px solid #e9ecef; }
+  .tree li { list-style: none; margin: 2px 0; }
+  .tree a { display: block; padding: 3px 6px; border-radius: 6px; text-decoration: none; color: #0d6efd; }
+  .tree a:hover { background: #f1f5ff; text-decoration: underline; }
+  .tree .folder > a { font-weight: 600; color: #0b5ed7; }
+  .tree .file   > a { font-weight: 400; color: #0d6efd; margin-left: 8px; }
+  .tree a.active { background: #e7f1ff; }
+  .tree .name { display: inline-block; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #drop-zone {
+    border: 2px dashed #0d6efd;
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    background: #f8f9fa;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  #drop-zone.dragover { background: #e9f5ff; }
+</style>
+
+<style>
+/* 🖥️ Desktop */
+.viewer-sticky {
+  position: sticky;
+  top: 65px;
+  z-index: 1050;
+  background: #fff;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+/* 🖥️ Hide collapse & expand button on desktop */
+.viewer-sticky .collapse-toggle,
+.viewer-sticky .expand-toggle {
+  display: none;
+}
+
+/* 📱 Mobile */
+@media (max-width: 768px) {
+  .viewer-sticky {
+    position: relative;
+    top: auto;
+    border-radius: 0.75rem;
+    box-shadow: none;
+    transition: all 0.3s ease;
+  }
+
+  /* 🧲 Floating Viewer */
+  .viewer-sticky.floating {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1060;
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(3px);
+    border-bottom-left-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+    padding: 1rem;
+    width: 100%;
+    max-height: 75vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: slideDown 0.25s ease;
+    pointer-events: none;
+    transform: translateZ(0);
+  }
+
+  .viewer-sticky.floating * {
+    pointer-events: auto;
+  }
+
+  @keyframes slideDown {
+    from { transform: translateY(-15px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .viewer-sticky.floating img,
+  .viewer-sticky.floating iframe {
+    width: 100%;
+    max-height: 45vh;
+    object-fit: contain;
+    border-radius: 0.5rem;
+    background: #000;
+  }
+
+  .viewer-sticky.floating .fw-semibold {
+    font-size: 0.95rem;
+    text-align: center;
+    word-break: break-word;
+  }
+
+  .viewer-sticky.floating .text-muted.small {
+    text-align: center;
+    font-size: 0.8rem;
+  }
+
+  .viewer-sticky.floating .d-flex.ms-auto.gap-2 {
+    width: 100%;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .viewer-sticky.floating .btn {
+    padding: 0.45rem 1rem;
+    font-size: 0.9rem;
+    border-radius: 0.6rem;
+    min-width: 120px;
+  }
+
+  /* 📜 Explorer full scroll */
+  .has-floating-viewer .col-12.col-md-4.col-lg-3.col-xxl-2 {
+    position: relative;
+    z-index: 1;
+    height: 100vh;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    padding: 0;
+  }
+
+  .has-floating-viewer .tree {
+    margin-top: 0;
+    padding-top: 0;
+  }
+
+  /* 🔽 Collapsed State */
+  .viewer-sticky.floating.collapsed {
+    max-height: 85px;
+    overflow: hidden;
+    padding: 0.75rem 1rem;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    animation: none;
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+  }
+
+  /* 🧹 Hide all text, labels, and buttons when collapsed */
+  .viewer-sticky.floating.collapsed .fw-semibold,
+  .viewer-sticky.floating.collapsed .text-muted,
+  .viewer-sticky.floating.collapsed .d-flex.ms-auto.gap-2,
+  .viewer-sticky.floating.collapsed img,
+  .viewer-sticky.floating.collapsed iframe {
+    display: none !important;
+  }
+
+  /* ✅ Collapse button (only visible in expanded floating mode) */
+  .viewer-sticky.floating .collapse-toggle {
+    display: block;
+    background: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 0.6rem;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    text-align: center;
+    margin-top: 0.75rem;
+    width: 100%;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+    transition: background 0.2s ease, transform 0.1s ease;
+  }
+
+  .viewer-sticky.floating .collapse-toggle:hover {
+    background: #22c15e;
+    transform: scale(1.03);
+  }
+
+  .viewer-sticky:not(.floating) .collapse-toggle {
+    display: none;
+  }
+
+  /* ✅ Centered Expand button (only visible when collapsed & floating) */
+  .viewer-sticky.floating.collapsed .expand-toggle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 1rem;
+    font-size: 0.85rem;
+    padding: 0.4rem 1rem;
+    z-index: 1100;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+    transition: background 0.2s ease, transform 0.1s ease;
+  }
+
+  .viewer-sticky.floating.collapsed .expand-toggle:hover {
+    background: #22c15e;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+
+  /* Hide expand button when not floating or not collapsed */
+  .viewer-sticky.floating:not(.collapsed) .expand-toggle,
+  .viewer-sticky:not(.floating) .expand-toggle {
+    display: none !important;
+  }
+
+  /* 🟢 Floating Bottom Controls */
+  .floating-controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-top: 1px solid #ddd;
+    display: flex;
+    justify-content: space-around;
+    padding: 0.75rem;
+    z-index: 1080;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .floating-controls button {
+    flex: 1;
+    margin: 0 0.5rem;
+    font-size: 0.9rem;
+    border-radius: 0.5rem;
+  }
+
+  /* 🟢 Back-to-Top Button */
+  #backToTop {
+    position: fixed;
+    bottom: 70px;
+    right: 15px;
+    display: none;
+    z-index: 1070;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 🩳 Prevent bottom overlap from floating buttons */
+  .has-floating-viewer .col-12.col-md-4.col-lg-3.col-xxl-2,
+  .tree {
+    padding-bottom: 40px !important; /* ensures last item visible above floating bar */
+  }
+
+  /* 🧩 Reduce vertical gap between action buttons and collapse button */
+  .viewer-sticky.floating .d-flex.ms-auto.gap-2 {
+    margin-bottom: 0.25rem !important; /* tighter spacing below Rename/Delete */
+  }
+
+  .viewer-sticky.floating .collapse-toggle {
+    margin-top: 0.25rem !important; /* closer to buttons above */
+    padding: 0.4rem 1rem !important; /* slightly smaller for compactness */
+    font-size: 0.85rem !important;
+  }
+}
+</style>
+
+
+
+<!-- 🟢 Floating controls for mobile -->
+<% if (activeDir) { %>
+<div class="floating-controls d-md-none">
+  <button class="btn btn-warning btn-sm"
+    onclick="promptRename('<%= activeDir %>')">Rename Folder</button>
+  <button class="btn btn-danger btn-sm"
+    onclick="confirmDeleteFolder('<%= activeDir %>')">Delete Folder</button>
+</div>
+<% } %>
+
+<!-- 🟢 Back to Top button -->
+<button id="backToTop" class="btn btn-primary btn-sm d-md-none"
+  onclick="scrollToTop()">↑</button>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const viewer = document.querySelector('.viewer-sticky');
+  if (!viewer) return;
+
+  const body = document.body;
+  let triggerPoint = 0;
+  let isFloating = false;
+
+  // 🔹 Calculate top offset trigger (start floating early)
+  const calcTrigger = () => {
+    const rect = viewer.getBoundingClientRect();
+    // Trigger when the top of viewer is near top viewport
+    triggerPoint = window.scrollY + rect.top - 100; 
+  };
+
+  const toggleFloating = () => {
+    // 🖥️ Disable floating on desktop
+    if (window.innerWidth > 768) {
+      viewer.classList.remove('floating', 'collapsed');
+      body.classList.remove('has-floating-viewer');
+      isFloating = false;
+      return;
+    }
+
+    // 📱 Auto float when scrolling down
+    if (window.scrollY > triggerPoint) {
+      if (!isFloating) {
+        viewer.classList.add('floating');
+        body.classList.add('has-floating-viewer');
+        isFloating = true;
+      }
+    } else {
+      if (isFloating) {
+        viewer.classList.remove('floating', 'collapsed');
+        body.classList.remove('has-floating-viewer');
+        isFloating = false;
+      }
+    }
+  };
+
+  // 🔹 Maintain trigger accuracy
+  setInterval(calcTrigger, 1000);
+  setTimeout(calcTrigger, 500);
+  window.addEventListener('resize', calcTrigger);
+  window.addEventListener('scroll', toggleFloating);
+
+  // 🔹 Recalculate on image or iframe load
+  viewer.querySelectorAll('img, iframe').forEach(el =>
+    el.addEventListener('load', () => setTimeout(calcTrigger, 300))
+  );
+
+  // 🔹 Tap to collapse/expand viewer
+  viewer.addEventListener('click', (e) => {
+    if (e.target.closest('button, form')) return;
+    viewer.classList.toggle('collapsed');
+  });
+
+  window.addEventListener('load', () => {
+    setTimeout(calcTrigger, 800);
+    toggleFloating();
+  });
+});
+
+window.addEventListener('scroll', () => {
+  const btn = document.getElementById('backToTop');
+  if (btn) btn.style.display = window.scrollY > 200 ? 'flex' : 'none';
+});
+
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+
+
+
+<div class="container-fluid mt-3">
+  <div class="row">
+    <!-- Left: Explorer -->
+    <div class="col-12 col-md-4 col-lg-3 col-xxl-2 border-end order-2 order-md-1"
+     style="max-height: calc(100vh - 70px); overflow-y: auto;">
+      <h6 class="mt-2">Explorer</h6>
+      <div class="tree">
+        <ul class="ps-1">
+          <% function renderNodes(nodes) { %>
+            <% nodes.forEach(function(node){ %>
+              <% if (node.type === 'dir') { %>
+                <li class="folder">
+                  <a href="/images?dir=<%= encodeURIComponent(node.rel) %>"
+                     class="<%= activeDir === node.rel ? 'active' : '' %>">
+                    <span class="name"><%= node.name %></span>
+                  </a>
+                  <% if (node.children && node.children.length) { %>
+                    <ul><%- renderNodes(node.children) %></ul>
+                  <% } %>
+                </li>
+              <% } else { %>
+                <li class="file">
+                  <a href="/images?dir=<%= encodeURIComponent(node.folder || '') %>&file=<%= encodeURIComponent(node.rel) %>"
+                     class="<%= (selected && selected.rel === node.rel) ? 'active' : '' %>">
+                    <span class="name"><%= node.name %></span>
+                  </a>
+                </li>
+              <% } %>
+            <% }) %>
+          <% } %>
+          <%- renderNodes(tree) %>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Right: Viewer + Controls -->
+    <div class="col-12 col-md-8 col-lg-9 col-xxl-10 order-1 order-md-2">
+      <div class="mb-2">
+        <h4 class="m-0">
+          <% if (selected) { %>
+            <span class="text-muted">Viewing:</span> <%= selected.name %>
+          <% } else { %>
+            <span class="text-muted">No file selected</span>
+            <%= activeDir ? (' – ' + activeDir) : '' %>
+          <% } %>
+        </h4>
+      </div>
+
+      <!-- Upload + Folder Controls -->
+      <div class="d-flex flex-wrap align-items-stretch gap-3 mb-3">
+        <div id="drop-zone" class="flex-grow-1 d-flex flex-column justify-content-center text-center rounded-3 border border-2 border-primary-subtle bg-light py-4">
+          <p class="m-0 text-muted">
+            📂 <strong>Drag & Drop files here (max 15 files, 100MB each)</strong><br>
+            <small>or click to browse</small>
+          </p>
+          <input type="file" id="file-input" name="files" multiple style="display:none">
+        </div>
+
+        <div class="d-flex flex-column justify-content-between" style="min-width:220px;">
+          <form action="/images/folder/create" method="POST" class="d-flex gap-2 align-items-center mb-2">
+            <input type="hidden" name="parent" value="<%= createParent %>">
+            <input type="text" name="name" class="form-control form-control-sm" placeholder="New folder name" required>
+            <button class="btn btn-sm btn-outline-primary" type="submit">Create</button>
+          </form>
+
+          <% if (activeDir) { %>
+            <form id="renameFolderForm" action="/images/folder/rename" method="POST" class="mb-2">
+              <input type="hidden" name="rel" value="<%= activeDir %>">
+              <input type="hidden" name="newName" id="renameFolderNewName">
+              <button type="button" class="btn btn-sm btn-outline-secondary w-100"
+                      data-rel="<%= activeDir %>"
+                      onclick="promptRename(this.dataset.rel)">Rename Folder</button>
+            </form>
+
+            <form id="deleteFolderForm" action="/images/folder/delete" method="POST">
+              <input type="hidden" name="rel" value="<%= activeDir %>">
+              <button type="button" class="btn btn-sm btn-outline-danger w-100"
+                      data-rel="<%= activeDir %>"
+                      onclick="confirmDeleteFolder(this.dataset.rel)">Delete Folder</button>
+            </form>
+          <% } %>
+        </div>
+      </div>
+
+      <% if (!selected) { %>
+        <div class="alert alert-info">Choose a file from the explorer or upload one.</div>
+      <% } else { %>
+        <div class="viewer-sticky card shadow-sm">
+          <div class="card-body">
+            <div class="ratio ratio-16x9 mb-3">
+              <%
+                const IMAGE_EXT = /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i;
+              %>
+
+              <% if (IMAGE_EXT.test(selected.name)) { %>
+                <!-- 🖼 Image preview -->
+                <img src="/media/<%= selected.rel %>"
+                     alt="<%= selected.name %>"
+                     class="img-fluid"
+                     style="object-fit:contain;background:#0b0e11;width:100%;height:100%;">
+
+              <% } else { %>
+                <!-- 📦 All non-image files -->
+                <div class="d-flex flex-column justify-content-center align-items-center"
+                     style="width:100%;height:100%;background:#0b0e11;color:#fff;">
+
+                  <div class="mb-2 fs-5">
+                    📄 <%= selected.name.split('.').pop().toUpperCase() %> File
+                  </div>
+
+                  <!-- <div class="mb-3 text-center px-3">
+                    This file will only download when explicitly requested.
+                  </div> -->
+
+                  <a href="/media/<%= selected.rel %>?download=1"
+                     class="btn btn-primary">
+                    Download File
+                  </a>
+                </div>
+              <% } %>
+
+            </div>
+
+            <div class="d-flex flex-wrap gap-3 align-items-center">
+              <div>
+                <div class="fw-semibold"><%= selected.name %></div>
+                <div class="text-muted small">Folder: <%= selected.folder === '.' ? '/' : selected.folder %></div>
+              </div>
+
+              
+              <div class="d-flex ms-auto gap-2">
+                <form id="renameImageForm" action="/images/rename" method="POST" class="d-inline">
+                  <input type="hidden" name="rel" value="<%= selected.rel %>">
+                  <input type="hidden" name="newName" id="renameImageNewName">
+                  <button type="button" class="btn btn-warning"
+                          data-rel="<%= selected.rel %>"
+                          onclick="promptRenameImage(this.dataset.rel, '<%= selected.name %>')">Rename File</button>
+                </form>
+
+                <form action="/images/delete" method="POST" class="d-inline">
+                  <input type="hidden" name="rel" value="<%= selected.rel %>">
+                  <button type="button"
+                          class="btn btn-danger"
+                          data-name="<%= selected.name %>"
+                          onclick="confirmDeleteImage(this)">Delete File</button>
+                </form>
+              </div>
+
+              <!-- ✅ Collapse button (only visible in floating mode) -->
+              <button type="button" class="btn btn-success w-100 mt-3 collapse-toggle" onclick="toggleViewerCollapse()">
+                ⬆ Collapse Viewer
+              </button>
+
+              <!-- ✅ Expand button (only visible when collapsed) -->
+              <button type="button" class="expand-toggle" onclick="toggleViewerCollapse()">
+                ⬇ Expand Viewer
+              </button>
+
+            </div>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var active = document.querySelector('.tree a.active');
+    if (active) active.scrollIntoView({ block: 'center', inline: 'nearest' });
+  });
+
+  function promptRename(currentRel) {
+    var base = (currentRel || '').split('/').pop();
+    var next = prompt('New name for folder:', base);
+    if (!next) return;
+    if (/[\\/]/.test(next)) return alert('Folder name cannot contain slashes.');
+    document.getElementById('renameFolderNewName').value = next.trim();
+    document.getElementById('renameFolderForm').submit();
+  }
+
+  function promptRenameImage(currentRel, currentName) {
+    var next = prompt('New name for file:', currentName);
+    if (!next) return;
+    if (/[\\/]/.test(next)) return alert('Name cannot contain slashes.');
+    document.getElementById('renameImageNewName').value = next.trim();
+    document.getElementById('renameImageForm').submit();
+  }
+
+  function confirmDeleteFolder(folderRel) {
+    if (confirm("⚠️ WARNING:\n\nYou are about to permanently delete the folder:\n\n" + folderRel +
+                "\n\nThis will also delete ALL files and subfolders inside it.\nAre you sure?")) {
+      document.getElementById('deleteFolderForm').submit();
+    }
+  }
+
+  function confirmDeleteImage(btn) {
+    var name = btn.dataset.name || 'this file';
+    if (confirm('Delete ' + name + '?')) btn.closest('form').submit();
+  }
+
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+  const currentDir = "<%= activeDir %>";
+
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', async e => { e.preventDefault(); dropZone.classList.remove('dragover'); await uploadFiles(e.dataTransfer.files); });
+  fileInput.addEventListener('change', async e => await uploadFiles(e.target.files));
+
+  async function uploadFiles(files) {
+    if (!files.length) return;
+    if (files.length > 15) return alert('⚠️ You can only upload up to 15 files at a time.');
+    const formData = new FormData();
+    for (const file of files) formData.append('files', file);
+    formData.append('dir', currentDir);
+    const res = await fetch('/images/upload', { method: 'POST', body: formData });
+    const data = await res.json();
+
+    if (data.success) {
+      window.location.reload();
+    } else {
+      console.error('Upload failed:', data.message || 'Unknown error');
+      alert('❌ Upload failed. Please try again.');
+    }
+  }
+
+  function toggleViewerCollapse() {
+    const viewer = document.querySelector('.viewer-sticky');
+    if (!viewer) return;
+    viewer.classList.toggle('collapsed');
+  }
+
+</script>
+
+<%- include('partials/footer') %>
+

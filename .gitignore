@@ -1,0 +1,56 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# User data (private - should not be committed)
+userdatadir/
+
+# Logs
+logs
+*.log
+
+# Environment variables (should be configured by user)
+# Note: userdata/.env is template, user should copy and modify
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# WhatsApp session files (private)
+userdatadir/whatsapp/*
+!userdatadir/whatsapp/.gitkeep
+
+# Chat history (private)
+userdatadir/chathistory/*
+!userdatadir/chathistory/.gitkeep
+
+# Sessions
+userdatadir/sessions/*
+!userdatadir/sessions/.gitkeep
+
+# QR codes
+userdatadir/qr/*
+!userdatadir/qr/.gitkeep
+
+# Memory files (private)
+userdatadir/mem/*
+!userdatadir/mem/.gitkeep
+
+# Backup files
+*.bak
+*.backup

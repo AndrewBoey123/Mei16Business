@@ -1,0 +1,65 @@
+<%- include('partials/header') %>
+
+<div class="container mt-4">
+  <h3>n8n Integration <span style="color:#dc3545;">(WARNING: Use only if you know what you are doing!)</span></h3>
+
+  <% if (!installed) { %>
+    <p class="text-muted">
+      n8n is not installed and configured on your version. You can manually install n8n here:
+      <a href="/terminal" class="fw-bold" style="text-decoration:none;">&gt;_CLI</a>
+    </p>
+  <% } %>
+
+  <div class="card mt-3">
+    <div class="card-body">
+
+      <!-- INSTALL STATUS BADGE -->
+      <div id="statusBox" class="mb-3">
+        <% if (installed) { %>
+          <span class="badge bg-success">n8n Installed</span>
+        <% } else { %>
+          <span class="badge bg-danger">n8n Not Installed</span>
+        <% } %>
+      </div>
+
+      <!-- OPEN BUTTON -->
+      <button 
+        id="btnOpenN8N" 
+        class="btn mb-3 <%= installed ? 'btn-primary' : 'btn-secondary' %>" 
+        <%= installed ? '' : 'disabled' %>>
+        <i class="fa fa-external-link"></i> Open n8n
+      </button>
+
+      <!-- LOG BOX -->
+      <div id="log" class="mt-3 text-muted" style="white-space: pre-line;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const btn = document.getElementById('btnOpenN8N');
+  const logEl = document.getElementById('log');
+
+  // Replace 2nd digit with "2"
+  function getN8NPort() {
+    const port = window.location.port;
+    if (!port || port.length < 2) return null;
+    return port[0] + "2" + port.slice(2);
+  }
+
+  btn.addEventListener('click', () => {
+    const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    const newPort = getN8NPort();
+
+    if (!newPort) {
+      logEl.textContent = "Unable to compute N8N port.";
+      return;
+    }
+
+    const url = `${protocol}//${hostname}:${newPort}/`;
+    window.open(url, "_blank");
+  });
+</script>
+
+<%- include('partials/footer') %>

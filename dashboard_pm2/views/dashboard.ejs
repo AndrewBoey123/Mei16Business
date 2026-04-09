@@ -1,0 +1,555 @@
+<%- include('partials/header') %>
+
+<!-- Force reset edition for open source -->
+<script>
+  // Clear old cached edition and force opensource
+  localStorage.removeItem("MEI_EDITION");
+  localStorage.setItem("MEI_EDITION", "opensource");
+</script>
+
+<style>
+  /* ✅ Custom toggle colors for Start/Stop buttons */
+  .start-btn.active {
+    background-color: #c0c9bf !important; /* muted green */
+    color: #000 !important;
+    border: none !important;
+  }
+
+  .stop-btn.active {
+    background-color: #c9bfbf !important; /* muted red */
+    color: #000 !important;
+    border: none !important;
+  }
+</style>
+<style>
+  /* Make checkbox border darker + visible */
+  #dontShowGuide {
+    accent-color: #0d6efd; /* Bootstrap primary blue */
+    outline: 2px solid #adb5bd; /* subtle grey border */
+    outline-offset: 2px;
+  }
+
+  /* On hover, highlight the box */
+  #dontShowGuide:hover {
+    outline-color: #0d6efd;
+  }
+</style>
+
+<!-- <style>
+  .btn-success {
+    background-color: #28a745 !important; /* brighter green */
+    border-color: #28a745 !important;
+  }
+
+  .btn-success:hover {
+    background-color: #34c759 !important; /* vivid hover color */
+    border-color: #34c759 !important;
+  }
+</style> -->
+
+<div class="d-flex">
+  <!-- Sidebar -->
+  <div class="sidebar bg-dark text-white">
+    <%- include('partials/sidebar') %>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content p-4 flex-grow-1">
+    <%- include('partials/wizard') %>
+
+    <div class="card shadow mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><%= BRAND %> Admin Dashboard</h5>
+      </div>
+
+      <div class="card-body">
+        <!-- First row: Quick Actions + QR Code -->
+        <div class="row gx-4 align-items-stretch">
+
+          <!-- LEFT: Quick Actions + Start/Stop -->
+          <div class="col-md-6 d-flex flex-column">
+            <div class="card shadow-sm flex-fill">
+              <div class="card-header bg-info text-white">Quick Actions</div>
+
+              <div class="card-body d-flex flex-column justify-content-start">
+
+                <div id="guideAlert" class="alert alert-warning text-center mt-2 py-2" style="display:none; font-size:0.9rem;"></div>
+
+                <a class="btn btn-outline-primary w-100 mb-2" href="#" id="userGuideBtn">User Guide</a>
+                <a class="btn btn-outline-primary w-100 mb-2" href="#" id="wizardTrigger">Wizard Set-Up</a>
+                <a class="btn btn-outline-primary w-100 mb-2" href="/env-editor">Bot Settings</a>
+                <a class="btn btn-outline-primary w-100 mb-2" href="/persona-editor">Edit Persona</a>
+                <a class="btn btn-outline-primary w-100" href="/chathistory">Chat History</a>
+
+                <!-- MEI Version Controller -->
+                <div class="mt-3">
+                  <select id="meiVersion" class="form-select mb-3 text-center fw py-2" aria-label="Select <%= BRAND %> Version"></select>
+
+                  <div id="active-bot-status" class="alert alert-warning py-2 px-3 fw-bold text-center mb-3">
+                    Loading current bot status...
+                  </div>
+
+                  <div class="d-grid gap-2">
+                    <button class="btn btn-success btn-lg start-btn" onclick="controlMeiVersion('start')">
+                      <i class="bi bi-play-fill me-1"></i> Start Bot
+                    </button>
+                    <button class="btn btn-danger btn-lg stop-btn" onclick="controlMeiVersion('stop')">
+                      <i class="bi bi-stop-fill me-1"></i> Stop Bot
+                    </button>
+                    <button class="btn btn-secondary btn-lg" onclick="confirmReboot()">
+                      <i class="bi bi-arrow-clockwise me-1"></i> Reboot Server
+                    </button>
+                  </div>
+                </div>
+
+                <div id="mei-status" class="mt-2 small text-muted"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: QR Code -->
+          <div class="col-md-6 d-flex flex-column mt-4 mt-md-0">
+            <div class="card shadow-sm flex-fill">
+              <div class="card-header bg-dark text-white">QR Code</div>
+              <div class="card-body d-flex justify-content-center align-items-center" style="height: 250px;">
+                <img id="qr-img" src="/userdata/qr/qr.png?ts=<%= Date.now() %>" alt="No New QR code"
+                     style="max-width: 100%; max-height: 100%; object-fit: contain;">
+              </div>
+              <div class="d-grid gap-2 mt-2">
+                <button class="btn btn-warning" onclick="rescanQR()">
+                  <i class="bi bi-arrow-repeat-fill me-1"></i> Rescan QR
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Logs Row -->
+        <div class="row gx-4 align-items-stretch mt-4">
+          <div class="col-12 d-flex flex-column">
+            <div class="card shadow-sm flex-fill">
+              <div class="card-header bg-dark text-white">Logs</div>
+              <div class="card-body">
+                <div id="mei-log-box" class="p-2 bg-black text-white rounded shadow-sm"
+                     style="height: 250px; overflow-y: auto; font-family: monospace; font-size: 0.85rem; white-space: pre-wrap;">
+                  <div id="mei-logs">Waiting for logs...</div>
+                </div>
+                <button class="btn btn-secondary btn-sm mt-2" onclick="clearLogs()">Clear Logs</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div> <!-- /card-body -->
+    </div>   <!-- /card -->
+  </div>     <!-- /main-content -->
+</div>       <!-- /d-flex -->
+
+<!-- Scripts -->
+<script src="/socket.io/socket.io.js"></script>
+<script>
+function detectEditionFromVersion(productName) {
+  if (!productName) return "free"; // safest fallback
+
+  const v = productName.toLowerCase();
+
+  if (v.includes("cloud")) return "free";        // Mei AI Cloud Bot → FREE
+  if (v.includes("business")) return "business"; // Mei AI Business Bot → BUSINESS
+  if (v.includes("enterprise")) return "enterprise";
+
+  return "free"; // fallback
+}
+
+function applyEditionToWizard(edition) {
+  // Open source - always opensource
+  localStorage.setItem("MEI_EDITION", "opensource");
+}
+</script>
+<script>
+// Open source - always set to opensource
+fetch("/api/edition")
+  .then(res => res.json())
+  .then(data => {
+    localStorage.setItem("MEI_EDITION", "opensource");
+  })
+  .catch(() => {
+    localStorage.setItem("MEI_EDITION", "opensource");
+  });
+</script>
+
+
+<script>
+  // ---------- Versions dropdown ----------
+  fetch('/api/app-control/versions')
+    .then(res => res.json())
+    .then(data => {
+      const dropdown = document.getElementById('meiVersion');
+      dropdown.innerHTML = '';
+
+      (data.versions || []).forEach(ver => {
+        const opt = document.createElement('option');
+        opt.value = ver;
+        opt.text = ver;
+        dropdown.appendChild(opt);
+      });
+
+      
+      if (data.versions?.length) {
+
+        // ---- PRIORITY RULE ----
+        // ---------- Always select the latest version ----------
+        if (data.versions?.length) {
+          const latest = data.versions[data.versions.length - 1];
+          dropdown.value = latest;
+          localStorage.setItem("mei_selected_version", latest);
+        }
+
+
+        // const edition = detectEditionFromVersion(defaultVersion);
+        // applyEditionToWizard(edition);
+      }
+
+
+      
+      dropdown.addEventListener('change', () => {
+        const version = dropdown.value;
+        localStorage.setItem("mei_selected_version", version);
+
+        // const edition = detectEditionFromVersion(version);
+        // applyEditionToWizard(edition);
+      });
+    })
+    .catch(err => console.error("Failed to load versions:", err));
+
+
+
+  // ---------- Running status + button toggle ----------
+  function updateRunningStatus() {
+    fetch('/api/app-control/status')
+      .then(res => res.json())
+      .then(data => {
+        const statusDiv = document.getElementById('active-bot-status');
+        const startBtn = document.querySelector('.start-btn');
+        const stopBtn = document.querySelector('.stop-btn');
+
+        if (data && data.version) {
+          statusDiv.innerText = `✅ Currently Running: ${data.version}`;
+          statusDiv.classList.remove('alert-warning');
+          statusDiv.classList.add('alert-success');
+
+          startBtn.classList.add('active');
+          stopBtn.classList.remove('active');
+        } else {
+          statusDiv.innerText = 'No bot is currently running';
+          statusDiv.classList.remove('alert-success');
+          statusDiv.classList.add('alert-warning');
+
+          stopBtn.classList.add('active');
+          startBtn.classList.remove('active');
+        }
+      })
+      .catch(() => {
+        const statusDiv = document.getElementById('active-bot-status');
+        statusDiv.innerText = '⚠️ Unable to fetch status';
+        statusDiv.classList.remove('alert-success');
+        statusDiv.classList.add('alert-warning');
+      });
+  }
+
+  // ---------- Start/Stop ----------
+  function controlMeiVersion(action) {
+    const version = document.getElementById('meiVersion').value;
+    if (!version) return alert('⚠️ Please select a Mei version.');
+    fetch(`/api/app-control/${action}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ version })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.success) throw new Error(data.message || 'Operation failed');
+        document.getElementById('mei-status').innerHTML = `<span class="text-success">${data.message}</span>`;
+        setTimeout(updateRunningStatus, 1500);
+      })
+      .catch(err => {
+        document.getElementById('mei-status').innerHTML = `<span class="text-danger">❌ ${err.message}</span>`;
+      });
+  }
+
+  function rescanQR() {
+    if (!confirm('⚠️ This will delete WhatsApp session folders and force re-login. Continue?')) return;
+    fetch('/api/app-control/rescan-qr', { method: 'POST' })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert('✅ QR session folders deleted. Restart the bot to generate new QR.');
+        } else {
+          alert((data && data.message) || '❌ Failed to delete folders.');
+        }
+      })
+      .catch(e => alert('❌ Error: ' + e.message));
+  }
+
+  // ---------- Reboot + others ----------
+  async function confirmReboot() {
+    if (!confirm('⚠️ Are you sure you wish to reboot the server?')) return;
+    await fetch('/api/app-control/reboot', { method: 'POST' });
+    document.getElementById('mei-status').innerHTML = '<span class="text-warning">🔄 Server is rebooting...</span>';
+  }
+
+  const socket = io();
+
+  let autoScrollLogs = true;
+  const logBox = document.getElementById('mei-log-box');
+
+  logBox.addEventListener("scroll", () => {
+    const threshold = 5; // how close to bottom before autoscroll activates
+    const distanceFromBottom = logBox.scrollHeight - (logBox.scrollTop + logBox.clientHeight);
+
+    autoScrollLogs = distanceFromBottom <= threshold;
+  });
+
+  socket.on('mei-log', d => {
+    const box = document.getElementById('mei-logs');
+    box.innerText += d + '\n';
+
+    if (autoScrollLogs) {
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+  });
+
+
+
+  async function clearLogs() {
+
+    try {
+      const res = await fetch('/api/app-control/clear-logs', {
+        method: 'POST'
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error(data.message || 'Failed to clear logs');
+      }
+
+      // Clear UI only AFTER server logs are cleared
+      document.getElementById('mei-logs').innerText = '';
+
+    } catch (err) {
+      alert('❌ ' + err.message);
+    }
+  }
+
+
+  // ---------- QR auto-refresh ----------
+  setInterval(() => {
+    const img = document.getElementById('qr-img');
+    if (img) img.src = '/userdata/qr/qr.png?ts=' + Date.now();
+  }, 8000);
+
+  // ---------- Wizard ----------
+  document.getElementById('wizardTrigger')?.addEventListener('click', e => {
+    e.preventDefault();
+    if (typeof renderOnboardingStep === 'function') {
+      window.currentStep = 1;
+      renderOnboardingStep();
+    } else alert('⚠️ Wizard is not ready yet.');
+  });
+
+  window.addEventListener('DOMContentLoaded', updateRunningStatus);
+</script>
+
+<script>
+document.getElementById("userGuideBtn").addEventListener("click", async (e) => {
+  e.preventDefault();
+
+  try {
+    const res = await fetch("/api/edition");
+    const data = await res.json();
+
+    const edition =
+      ["free", "business", "enterprise"].includes(
+        (data.edition || "").toLowerCase()
+      )
+        ? data.edition.toLowerCase()
+        : "unknown";
+
+    const hostname = window.location.hostname;
+
+    const guideRes = await fetch(
+      `/api/guide/resolve?edition=${edition}&hostname=${hostname}`
+    );
+    const guide = await guideRes.json();
+
+    window.open(guide.url, "_blank");
+  } catch {
+    window.open("https://meibot.cloud/user_guide.htm", "_blank");
+  }
+});
+
+</script>
+
+
+<script>
+  // To redirect mei-editor dynamically to what version we select
+  document.addEventListener("DOMContentLoaded", () => {
+    // Find both desktop + mobile editor links
+    const editorLinks = document.querySelectorAll('a[href="/mei-editor"]');
+
+    editorLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        const version = localStorage.getItem("mei_selected_version");
+        if (!version) return alert("⚠️ Please select a Mei version first!");
+        e.preventDefault();
+        window.location.href = `/mei-editor?version=${encodeURIComponent(version)}`;
+      });
+    });
+  });
+</script>
+
+<% if (showGuide) { %>
+<div id="guideModal"
+     style="position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(0,0,0,0.6); display:block; z-index:5000;
+            overflow-y:auto;">
+
+  <div id="guideContent"
+       style="max-width:900px; margin:5% auto; background:white;
+              padding:2rem; border-radius:12px;
+              box-shadow:0 5px 20px rgba(0,0,0,0.3); position:relative;">
+
+    <!-- Close Button -->
+    <button onclick="finishGuide()"
+      style="position:absolute; top:10px; right:10px;
+             background:none; border:none; font-size:1.8rem; color:#888;">
+      &times;
+    </button>
+
+    <h2 class="text-center mb-3">Welcome to the <%= BRAND %> Dashboard</h2>
+
+    <p class="text-center text-muted mb-4">
+      Quick Getting Started Video
+    </p>
+
+    <!-- YOUTUBE VIDEO -->
+    <!-- Getting Started Video -->
+    <div style="position:relative; width:100%; padding-top:56.25%;">
+      <iframe
+        id="ytGuideFrame"
+        src="https://my.mei.trading/GettingStarted"
+        style="position:absolute; top:0; left:0; width:100%; height:100%; border-radius:8px;"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen>
+      </iframe>
+    </div>
+
+
+
+    
+    <div class="d-flex justify-content-between align-items-center mt-4">
+
+      <!-- Do not show again -->
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="dontShowGuide">
+        <label class="form-check-label" for="dontShowGuide">
+          Do not show again
+        </label>
+      </div>
+
+      <button class="btn btn-primary" onclick="finishGuide()">Go To Wizard</button>
+    </div>
+
+  </div>
+</div>
+
+<% } %>
+
+
+<script>
+  function finishGuide() {
+    // stop youtube
+    const yt = document.getElementById('ytGuideFrame');
+    if (yt) yt.src = yt.src;
+
+    const modal = document.getElementById('guideModal');
+    if (modal) modal.style.display = 'none';
+
+    const dontShow = document.getElementById('dontShowGuide')?.checked;
+
+    if (dontShow) {
+      fetch('/guide/complete', { method: 'POST' })
+        .then(() => {
+          const wizardButton = document.getElementById('wizardTrigger');
+          if (wizardButton) setTimeout(() => wizardButton.click(), 200);
+        });
+    } else {
+      const wizardButton = document.getElementById('wizardTrigger');
+      if (wizardButton) setTimeout(() => wizardButton.click(), 200);
+    }
+  }
+
+  function closeGuide() {
+    // stop youtube
+    const yt = document.getElementById('ytGuideFrame');
+    if (yt) yt.src = yt.src;
+
+    const modal = document.getElementById('guideModal');
+    if (modal) modal.style.display = 'none';
+
+    const dontShow = document.getElementById('dontShowGuide')?.checked;
+
+    if (dontShow) {
+      fetch('/guide/complete', { method: 'POST' })
+        .then(() => {
+          const wizardButton = document.getElementById('wizardTrigger');
+          if (wizardButton) setTimeout(() => wizardButton.click(), 300);
+        });
+    } else {
+      const wizardButton = document.getElementById('wizardTrigger');
+      if (wizardButton) setTimeout(() => wizardButton.click(), 300);
+    }
+  }
+</script>
+
+<script>
+function detectEditionFromFolderName(version) {
+  if (!version) return "free";
+
+  const v = version.toLowerCase();
+
+  if (v.includes("free")) return "free";
+  if (v.includes("business")) return "business";
+  if (v.includes("enterprise")) return "enterprise";
+
+  // plain Mei16 / Mei17 → business
+  if (v.startsWith("mei") && /\d/.test(v)) return "business";
+
+  return "free";
+}
+</script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const version = localStorage.getItem("mei_selected_version") || "";
+  const edition = detectEditionFromFolderName(version);
+
+  const VIDEO_LINKS = {
+    free: "https://my.mei.trading/GettingStartedCloud",
+    business: "https://my.mei.trading/GettingStartedBusiness",
+    enterprise: "https://my.mei.trading/GettingStartedEnterprise"
+  };
+
+  const yt = document.getElementById("ytGuideFrame");
+  if (yt) yt.src = VIDEO_LINKS[edition] || VIDEO_LINKS.enterprise;
+});
+</script>
+
+
+
+
+
+
+<%- include('partials/footer') %>

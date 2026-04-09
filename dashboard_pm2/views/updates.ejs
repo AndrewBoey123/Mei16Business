@@ -1,0 +1,82 @@
+<!-- views/updates.ejs -->
+<%- include('partials/header') %>
+
+<div class="card shadow mb-4">
+  <div class="card-header bg-primary text-white">
+    <h5 class="mb-0"><%= BRAND %> Software Updates <span style="color:#ffc107;">(WARNING: Use only if you know what you are doing!)</span></h5>
+  </div>
+
+  <div class="card-body">
+    <% if (message) { %>
+      <div class="alert alert-info mb-3"><%= message %></div>
+    <% } %>
+
+    <div class="alert alert-primary fw-semibold mb-3">
+      <% if (productName === "Unknown") { %>
+          Your Version: <%= productName %> 
+          <br>
+          <span style="color:#d9534f; font-weight:bold;">
+            Invalid Serial ID
+          </span>
+      <% } else { %>
+          Your Version: <%= productName %>
+      <% } %>
+    </div>
+
+
+
+    <!-- Dropdown + Download -->
+    <div class="row g-3 align-items-end mb-4">
+      <div class="col-md-6">
+        <label for="verSelect" class="form-label fw-semibold">Available Versions (latest first)</label>
+        <select id="verSelect" class="form-select">
+          <% (versions || []).forEach(v => { %>
+            <option value="<%= String(v.version) %>">
+              v<%= v.version %><%= v.downloaded ? " (downloaded)" : "" %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <button id="btnDownload" class="btn btn-success w-100">
+          <i class="bi bi-download"></i> Download Selected
+        </button>
+      </div>
+      <div class="col-md-3">
+        <button id="btnReload" class="btn btn-outline-secondary w-100">Refresh</button>
+      </div>
+    </div>
+
+    <!-- Log area -->
+    <pre id="log" class="bg-light p-3 rounded small" style="min-height: 72px;"></pre>
+
+    <!-- Status table (NO source column) -->
+    <div class="table-responsive mt-3">
+      <table class="table table-striped align-middle">
+        <thead>
+          <tr>
+            <th style="width: 120px;">Version</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% (versions || []).forEach(v => { %>
+            <tr>
+              <td class="fw-semibold">v<%= v.version %></td>
+              <td>
+                <% if (v.downloaded) { %>
+                  <span class="badge bg-success">downloaded</span>
+                <% } else { %>
+                  <span class="badge bg-secondary">not downloaded</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="/js/updates.js"></script>
+<%- include('partials/footer') %>

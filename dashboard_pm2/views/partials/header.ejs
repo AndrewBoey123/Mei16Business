@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title><%= BRAND %> Admin Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <!-- Google Fonts: Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f5f6fa;
+    margin: 0;
+  }
+
+  /* ✅ Navbar follows content width (not fixed or sticky) */
+  .navbar {
+    background-color: #f2fbfc !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 1040;
+    width: 100%;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+    position: relative; /* key: not fixed/sticky, flows with content */
+  }
+
+  .navbar-brand {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #000000 !important;
+    display: flex;
+    align-items: center;
+  }
+
+  .navbar-brand img {
+    height: 32px;
+    width: auto;
+    margin-right: 10px;
+  }
+
+  .navbar-nav .nav-link {
+    color: #444 !important;
+    font-weight: 400;
+    font-size: 0.9rem;
+    padding-right: 1rem;
+  }
+
+  .navbar-nav .nav-link i {
+    margin-right: 4px;
+  }
+
+  .navbar-text {
+    font-size: 0.85rem;
+    color: #333;
+  }
+
+  .btn-logout {
+    background-color: #dc3545;
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border: none;
+    border-radius: 4px;
+  }
+
+  .btn-logout:hover {
+    background-color: #bd2130;
+  }
+
+  /* ✅ Mobile Nav */
+  .mobile-nav {
+    display: none;
+    background-color: #ffffff;
+    width: 100%;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    border-top: 1px solid #eee;
+    position: relative;
+    z-index: 1039;
+  }
+
+  .mobile-nav.show {
+    display: block;
+  }
+
+  .mobile-nav a {
+    display: block;
+    margin-bottom: 12px;
+    color: #444;
+    text-decoration: none;
+  }
+
+  .mobile-nav a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 991px) {
+    .navbar-collapse {
+      display: none !important;
+    }
+  }
+
+  .navbar-toggler {
+    background-color: #ffcc00;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 10px;
+  }
+
+  .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(0,0,0,1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+  }
+
+  .nav-link i[data-lucide],
+  .mobile-nav i[data-lucide] {
+    position: relative;
+    top: 1px;
+    width: 16px;
+    height: 16px;
+    stroke-width: 2;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  /* ✅ Lucide RAG icon alignment fix */
+  svg.rag-icon {
+    width: 20px !important;      /* increased from 15px */
+    height: 20px !important;
+    stroke-width: 2.2;
+    vertical-align: middle;
+    position: relative;
+    top: -0.5px;                 /* slight nudge for center alignment */
+    margin-right: 4px;           /* match FA icon spacing */
+  }
+
+  .nav-link .rag-icon {
+    margin-right: 3px;
+    top: -1.2px;
+  }
+
+  /* ✅ Prevent horizontal overflow when QR/log expands */
+  html, body {
+    overflow-x: hidden;
+  }
+
+  .main-content, .container-fluid {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  #mei-log-box, pre, code {
+    max-width: 100%;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  img#qr-img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+</style>
+
+<style>
+  .navbar-nav .nav-link.text-danger {
+    color: #dc3545 !important;
+  }
+</style>
+
+
+</head>
+<body>
+
+<!-- Top Navbar -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid px-3">
+    <a class="navbar-brand" href="/dashboard">
+      <img id="navLogo" src="/assets/logo.png" alt="Logo" />
+      <%= process.env.BOT_NAME || '' %> Admin
+    </a>
+
+    <!-- Mobile toggle -->
+    <button class="navbar-toggler" type="button" onclick="toggleMobileNav()" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Desktop nav (hidden on small screens) -->
+    <div class="collapse navbar-collapse" id="navbarItems">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link" href="/dashboard"><i class="fa fa-house"></i> Main</a></li>
+<!--         <li class="nav-item"><a class="nav-link" href="/env-editor"><i class="fa fa-gear"></i> Settings</a></li>
+        <li class="nav-item"><a class="nav-link" href="/persona-editor"><i class="fa fa-brain"></i> Persona</a></li>    -->
+        <li class="nav-item"><a class="nav-link" href="/memory-editor"><i class="fa fa-memory"></i> Memory</a></li>
+        <li class="nav-item"><a class="nav-link" href="/chathistory"><i class="fa fa-comments"></i> Chats </a></li>
+        <li class="nav-item">
+          <a class="nav-link <%= (typeof currentPath !== 'undefined' && currentPath.startsWith('/images')) ? 'active' : '' %>" href="/images">
+            <i class="fa fa-images"></i> Images
+          </a>
+        </li>
+        <li class="nav-item"><a class="nav-link" href="/backup"><i class="fa fa-file-zipper"></i> Backup</a></li>
+        <li class="nav-item">
+          <a class="nav-link text-danger" href="/n8n-page">
+            <img 
+              src="/assets/n8n.png" 
+              width="24" height="24" 
+              style="vertical-align:middle;margin-right:4px;"
+            >
+            n8n
+          </a>
+        </li>
+
+        <li class="nav-item"><a class="nav-link text-danger" href="/install"><i class="fa fa-share"></i> npm</a></li>
+        <li class="nav-item"><a class="nav-link text-danger" href="/mei-editor"><i class="fa fa-code"></i> Editor</a></li>
+        <li class="nav-item"><a class="nav-link text-danger" href="/terminal"><i class="fa fa-terminal"></i> CLI</a></li>
+        <li class="nav-item"><a class="nav-link text-danger" href="/fileman"><i class="fa fa-folder-open"></i> File Manager</a></li>
+
+
+      </ul>
+
+      <div class="d-flex align-items-center">
+        <a href="/logout" class="btn btn-logout">Logout</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile nav dropdown -->
+<div id="mobileNav" class="mobile-nav">
+
+  <a href="/dashboard"><i class="fa fa-house"></i> Main</a>
+  <a href="/memory-editor"><i class="fa fa-memory"></i> Memory</a>
+  <a href="/chathistory"><i class="fa fa-comments"></i> Chats</a>
+
+  <a href="/images"><i class="fa fa-images"></i> Images</a>
+
+  <a href="/backup"><i class="fa fa-file-zipper"></i> Backup</a>
+
+  <!-- RED ITEMS (same as desktop) -->
+          <a class="nav-link text-danger" href="/n8n-page">
+            <img 
+              src="/assets/n8n.png" 
+              width="24" height="24" 
+              style="vertical-align:middle;margin-right:4px;"
+            >
+            n8n
+          </a>
+  <a href="/install" class="text-danger"><i class="fa fa-share"></i> npm</a>
+  <a href="/mei-editor" class="text-danger"><i class="fa fa-code"></i> Editor</a>
+  <a href="/terminal" class="text-danger"><i class="fa fa-terminal"></i> CLI</a>
+  <a href="/fileman" class="text-danger"><i class="fa fa-folder-open"></i> File Manager</a>
+
+  <hr />
+  <div class="d-flex justify-content-between align-items-center">
+    <span style="font-size: 0.85rem;">Logged in as: <strong>admin</strong></span>
+    <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+  </div>
+</div>
+
+
+<script>
+  function toggleMobileNav() {
+    const nav = document.getElementById('mobileNav');
+    nav.classList.toggle('show');
+  }
+</script>
+
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  // Wait until all DOM is ready before replacing <i data-lucide="">
+  document.addEventListener('DOMContentLoaded', function() {
+    lucide.createIcons();
+  });
+</script>
+<script>
+  function openN8N() {
+    const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    const port = window.location.port;
+
+    if (!port) return alert("No port detected in URL!");
+
+    let portStr = port.toString();
+
+    // If port is only 1 digit, nothing to replace
+    if (portStr.length < 2) {
+      return alert("Port too short to modify.");
+    }
+
+    // Replace ONLY the second digit with '2'
+    const newPortStr = portStr[0] + "2" + portStr.slice(2);
+
+    const url = `${protocol}//${hostname}:${newPortStr}/`;
+    window.open(url, "_blank");
+  }
+</script>
+
+<script>
+(function () {
+  try {
+    const hostname = window.location.hostname;
+
+    let logoUrl = "/assets/logo.png";
+
+    // Ignore official domains
+    if (!hostname.endsWith("mei.trading") && !hostname.endsWith("meibot.cloud") && hostname !== "localhost") {
+      const parts = hostname.split(".");
+      if (parts.length >= 2) {
+        const baseDomain = parts.slice(-2).join(".");
+        logoUrl = `https://${baseDomain}/img/dashboard/botlogo.png`;
+      }
+    }
+
+    const img = document.getElementById("navLogo");
+    if (!img) return;
+
+    img.onerror = () => {
+      img.src = "/assets/logo.png";
+    };
+
+    img.src = logoUrl;
+  } catch (_) {
+    // silent fail
+  }
+})();
+</script>
+
+
+
+

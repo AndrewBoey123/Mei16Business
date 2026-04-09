@@ -1,0 +1,288 @@
+<%- include('partials/header') %>
+
+<!-- CodeMirror Search Addons -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/search/searchcursor.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/search/search.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/dialog/dialog.min.js"></script>
+
+<!-- Add the CSS for dialog (search box) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/dialog/dialog.min.css">
+
+
+<script>
+
+  let currentFileType = null;   // "version" | "chat" | "json"
+  let currentFileName = null;
+
+
+  // Force redirect to include selected version in URL
+  (function() {
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has('version')) {
+      const stored = localStorage.getItem("mei_selected_version");
+      if (stored) {
+        url.searchParams.set('version', stored);
+        window.location.replace(url.toString());
+      }
+    }
+  })();
+</script>
+
+<div class="d-flex">
+  <div class="sidebar bg-dark text-white">
+    <%- include('partials/sidebar') %>
+  </div>
+
+  <div class="main-content p-4 flex-grow-1">
+    <div class="card shadow mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><%= BRAND %> Editor (<%= selectedVersion || "No Version Selected" %>) <span style="color:#ffc107;">(WARNING: Use only if you know what you are doing!)</span></h5>
+      </div>
+
+      <div class="card-body">
+        <div id="saveAlert" class="alert alert-success" style="display:none;">
+          ✅ File saved successfully!
+        </div>
+
+        <!-- Selectors -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="fileSelect" class="form-label fw-bold">Select File</label>
+            <select id="fileSelect" class="form-select mb-3 text-center fw py-2">
+              <option value="" disabled selected>Files</option>
+              <% if (files && files.length) { %>
+                <% files.forEach(function(f){ %>
+                  <option value="<%= f %>"><%= f %></option>
+                <% }) %>
+              <% } %>
+            </select>
+          </div>
+          <div class="col-md-6">
+            
+            <label for="chatSelect" class="form-label fw-bold">Select JSON Files</label>
+            <select id="chatSelect" class="form-select mb-3 text-center fw py-2">
+              <option value="" selected disabled>JSON Files</option>
+
+              <% if (jsonFiles && jsonFiles.length) { %>
+                <optgroup label="JSON Folder">
+                  <% jsonFiles.forEach(function(f){ %>
+                    <option value="json::<%= f %>"><%= f %></option>
+                  <% }) %>
+                </optgroup>
+              <% } %>
+
+              <% if (chatFiles && chatFiles.length) { %>
+                <optgroup label="Chat History">
+                  <% chatFiles.forEach(function(f){ %>
+                    <option value="chat::<%= f %>"><%= f %></option>
+                  <% }) %>
+                </optgroup>
+              <% } %>
+            </select>
+          </div>
+        </div>
+
+        <!-- Code Editor -->
+        <div id="editorContainer" class="border rounded" style="height: 650px;">
+          <textarea id="codeArea"></textarea>
+        </div>
+
+        <!-- Save Button (below editor) -->
+        <div class="d-flex justify-content-end align-items-center mt-3">
+          <button id="saveBtn" class="btn btn-success fw-semibold px-4">
+            Save
+          </button>
+          <!-- <span id="saveMsg" class="text-success fw-bold ms-3" style="display:none;">✅ Saved</span> -->
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CodeMirror Styles -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/monokai.min.css">
+
+<style>
+  #editorContainer {
+    height: 650px;
+    overflow: hidden;
+  }
+
+  .CodeMirror {
+    height: 100% !important;
+    font-size: 14px;
+  }
+
+  .CodeMirror-scroll {
+    overflow: auto !important;
+  }
+
+  #saveBtn {
+    border-radius: 8px;
+  }
+</style>
+
+
+
+<!-- CodeMirror Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/edit/matchbrackets.min.js"></script>
+
+<script>
+  let editor;
+  const fileSelect = document.getElementById('fileSelect');
+  const chatSelect = document.getElementById('chatSelect');
+  const editorEl = document.getElementById('codeArea');
+  const saveBtn = document.getElementById('saveBtn');
+  const saveMsg = document.getElementById('saveMsg');
+
+  let selectedVersion = "<%= selectedVersion %>";
+
+  // Remember last opened version
+  if (!selectedVersion || selectedVersion === "null") {
+    const stored = localStorage.getItem("mei_selected_version");
+    if (stored) {
+      window.location.href = `/mei-editor?version=${encodeURIComponent(stored)}`;
+    }
+  } else {
+    localStorage.setItem("mei_selected_version", selectedVersion);
+  }
+
+  function showEditor(code) {
+    const container = document.getElementById("editorContainer");
+
+    // Destroy old instance safely
+    if (editor) {
+      editor.toTextArea();
+      editor = null;
+    }
+
+    // Create new CodeMirror
+    editor = CodeMirror.fromTextArea(editorEl, {
+      lineNumbers: true,
+      mode: "javascript",
+      theme: "monokai",
+      matchBrackets: true,
+      lineWrapping: true,
+      readOnly: false,
+      viewportMargin: Infinity // makes CodeMirror render the whole file
+    });
+
+    // Force container & editor height
+    editor.setSize("100%", container.offsetHeight + "px");
+
+    // Load code safely after render
+    setTimeout(() => {
+      editor.setValue(code || "");
+      editor.refresh();
+    }, 50);
+  }
+
+
+  // Load first file
+  document.addEventListener('DOMContentLoaded', async () => {
+    if (!selectedVersion || selectedVersion === "null") return;
+    if (fileSelect.options.length > 1) {
+      const firstFile = fileSelect.options[1].value;
+      fileSelect.value = firstFile;
+      const res = await fetch(`/mei-editor/load/${encodeURIComponent(selectedVersion)}/${encodeURIComponent(firstFile)}`);
+      const data = await res.json();
+      showEditor(data.code || '');
+    }
+  });
+
+  fileSelect.addEventListener('change', async (e) => {
+    const file = e.target.value;
+    if (!file || !selectedVersion) return;
+
+    currentFileType = "version";
+    currentFileName = file;
+
+
+    const res = await fetch(`/mei-editor/load/${encodeURIComponent(selectedVersion)}/${encodeURIComponent(file)}`);
+    const data = await res.json();
+    showEditor(data.code || '');
+  });
+
+  chatSelect.addEventListener('change', async (e) => {
+    const val = e.target.value;
+    if (!val) return;
+
+    let url = '';
+
+    if (val.startsWith('json::')) {
+      const file = val.replace('json::', '');
+      currentFileType = "json";
+      currentFileName = file;
+      url = `/mei-editor/load-json/${encodeURIComponent(file)}`;
+    } 
+    else if (val.startsWith('chat::')) {
+      const file = val.replace('chat::', '');
+      currentFileType = "chat";
+      currentFileName = file;
+      url = `/mei-editor/load-chat/${encodeURIComponent(file)}`;
+    }
+
+    const res = await fetch(url);
+    const data = await res.json();
+    showEditor(data.code || '');
+  });
+
+
+
+  // ---------- Save Button ----------
+  saveBtn.addEventListener('click', async () => {
+    if (!editor) return alert('Editor not ready!');
+    if (!currentFileType || !currentFileName) {
+      return alert('⚠️ No file selected.');
+    }
+
+    const code = editor.getValue();
+    let url = '';
+
+    if (currentFileType === 'version') {
+      url = `/mei-editor/save/${encodeURIComponent(selectedVersion)}/${encodeURIComponent(currentFileName)}`;
+    }
+    else if (currentFileType === 'chat') {
+      url = `/mei-editor/save-chat/${encodeURIComponent(currentFileName)}`;
+    }
+    else if (currentFileType === 'json') {
+      url = `/mei-editor/save-json/${encodeURIComponent(currentFileName)}`;
+    }
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code })
+    });
+
+    if (res.ok) {
+      const saveAlert = document.getElementById('saveAlert');
+      saveAlert.style.display = 'block';
+      saveAlert.textContent = '✅ File saved successfully!';
+      window.scrollTo(0, 0);
+    } else {
+      alert('❌ Save failed!');
+    }
+  });
+
+
+  // ---------- Ctrl+S Shortcut ----------
+  window.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      saveBtn.click();
+    }
+  });
+
+  // Trigger CodeMirror built-in search dialog
+  document.getElementById("findBtn")?.addEventListener("click", () => {
+    if (editor) editor.execCommand("find");
+  });
+
+</script>
+
+<%- include('partials/footer') %>

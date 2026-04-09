@@ -1,0 +1,36 @@
+<%- include('partials/header') %>
+
+<div class="d-flex">
+  <div class="sidebar bg-dark text-white">
+    <%- include('partials/sidebar') %>
+  </div>
+
+  <div class="main-content p-4 flex-grow-1">
+    <div class="card shadow mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Bot Settings</h5>
+      </div>
+      <div class="card-body">
+        <% if (status === 'true') { %>
+          <div class="alert alert-success">✅ File saved successfully!</div>
+        <% } else if (status === 'false') { %>
+          <div class="alert alert-danger">❌ Failed to save file. Check permissions.</div>
+        <% } else if (status === 'missing') { %>
+          <div class="alert alert-warning">⚠️ .env file not found. A new one will be created when saved.</div>
+        <% } %>
+
+        <form method="POST" action="/env-editor">
+          <div class="mb-3">
+            <textarea class="form-control font-monospace" name="content" style="min-height: 65vh; white-space: pre;"><%= content %></textarea>
+          </div>
+          <div class="d-flex justify-content-end gap-2">
+            <a href="/dashboard" class="btn btn-warning">Cancel</a>
+            <button type="submit" class="btn btn-success">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

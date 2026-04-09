@@ -1,0 +1,193 @@
+<%- include('partials/header') %>
+
+<!-- Responsive Terminal Layout -->
+<div class="d-flex flex-column flex-md-row h-100 w-100 m-0 p-0" style="overflow:hidden;">
+  <!-- Sidebar -->
+  <div class="sidebar bg-dark text-white">
+    <%- include('partials/sidebar') %>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content flex-grow-1 m-0 p-0" style="overflow:hidden;">
+    <div class="card h-100 w-100 m-0 rounded-0 border-0" id="terminal-card" style="overflow:hidden;">
+      <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between py-2 px-3">
+        <h5 class="mb-0">Terminal <span style="color:#ffc107;">(WARNING: Use only if you know what you are doing!)</span></h5>
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-light" id="btn-smaller">A−</button>
+          <button class="btn btn-sm btn-outline-light" id="btn-bigger">A+</button>
+          <button class="btn btn-sm btn-outline-light" id="btn-clear">Clear</button>
+        </div>
+      </div>
+
+      <div class="card-body p-0 m-0" style="overflow:hidden; background:#fff;">
+        <div id="terminal-root" class="w-100 h-100">
+          <!-- xterm mounts here -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- xterm assets -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
+<script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit/lib/xterm-addon-fit.min.js"></script>
+
+<style>
+  :root {
+    --bottom-padding: max(30px, env(safe-area-inset-bottom, 0px)); /* Increased from 20px to 30px */
+    --header-height: 46px;
+  }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: #f4f5f7;
+  }
+
+  #terminal-root {
+    background: #000;
+    height: calc(100% - var(--bottom-padding)) !important;
+    padding-bottom: var(--bottom-padding);
+    box-sizing: border-box;
+  }
+
+  .xterm-screen {
+    padding-bottom: var(--bottom-padding) !important;
+  }
+
+  .card-body {
+    height: calc(100% - var(--header-height)) !important;
+    padding-bottom: 5px; /* Added extra bottom padding */
+  }
+
+  /* Ensure terminal elements properly fill space */
+  .xterm-viewport,
+  .xterm-screen {
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+  }
+
+  /* Additional bottom space for the last line */
+  .xterm-rows {
+    padding-bottom: 5px !important;
+  }
+</style>
+
+<script>
+(() => {
+  // ----- Terminal initialization -----
+  const term = new Terminal({
+    convertEol: true,
+    cursorBlink: true,
+    fontFamily: 'monospace',
+    fontSize: 14,
+    lineHeight: 1.2,
+    scrollback: 4000,
+    theme: { 
+      background: '#000000',
+      foreground: '#ffffff',
+      cursor: '#ffffff',
+      selection: '#333a'
+    },
+    allowProposedApi: true
+  });
+  
+  const fitAddon = new FitAddon.FitAddon();
+  term.loadAddon(fitAddon);
+
+  const root = document.getElementById('terminal-root');
+  const card = document.getElementById('terminal-card');
+
+  term.open(root);
+  term.focus();
+
+  // ----- WebSocket connection -----
+  const WS_PATH = '/terminal';
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  const socket = new WebSocket(`${proto}://${location.host}${WS_PATH}`);
+
+  socket.addEventListener('message', (ev) => {
+    term.write(typeof ev.data === 'string' ? ev.data : new TextDecoder('utf-8').decode(ev.data));
+  });
+
+  socket.addEventListener('open', () => {
+    fitAddon.fit();
+    sendResize();
+  });
+
+  socket.addEventListener('close', () => term.writeln('\r\n[connection closed]'));
+  socket.addEventListener('error', () => term.writeln('\r\n[connection error]'));
+
+  term.onData(data => {
+    if (socket.readyState === WebSocket.OPEN) socket.send(data);
+  });
+
+  // ----- Resize handling -----
+  function sendResize() {
+    try {
+      fitAddon.fit();
+      const { cols, rows } = term;
+      const adjustedRows = Math.max(5, rows - 2); // Increased compensation from 1 to 2 rows
+      
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({ 
+          type: 'resize', 
+          cols: cols, 
+          rows: adjustedRows 
+        }));
+      }
+    } catch (e) {
+      console.error('Resize error:', e);
+    }
+  }
+
+  // Initial fit with double requestAnimationFrame
+  requestAnimationFrame(() => {
+    sendResize();
+    requestAnimationFrame(sendResize);
+  });
+
+  // Debounced resize handler
+  let resizeTimer;
+  const debounceResize = () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(sendResize, 100);
+  };
+
+  window.addEventListener('resize', debounceResize);
+  window.addEventListener('orientationchange', debounceResize);
+  if (window.visualViewport) {
+    visualViewport.addEventListener('resize', debounceResize);
+  }
+
+  const ro = new ResizeObserver(debounceResize);
+  ro.observe(card);
+  ro.observe(root);
+
+  // Focus terminal when clicking
+  root.addEventListener('click', () => term.focus(), { passive: true });
+
+  // ----- Button handlers -----
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  
+  document.getElementById('btn-clear').addEventListener('click', () => term.clear());
+  
+  document.getElementById('btn-bigger').addEventListener('click', () => {
+    term.options.fontSize = clamp((term.options.fontSize || 14) + 1, 10, 24);
+    sendResize();
+  });
+  
+  document.getElementById('btn-smaller').addEventListener('click', () => {
+    term.options.fontSize = clamp((term.options.fontSize || 14) - 1, 10, 24);
+    sendResize();
+  });
+
+  // Final initialization
+  document.fonts?.ready?.then(sendResize);
+})();
+</script>
+
+<%- include('partials/footer') %>

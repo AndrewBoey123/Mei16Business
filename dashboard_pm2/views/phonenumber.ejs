@@ -1,0 +1,54 @@
+<%- include('partials/header') %>
+
+<div class="container-fluid px-4 py-3">
+  <div class="card shadow">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">Phone Numbers Management</h5>
+    </div>
+    <form method="POST" action="/phonenumber">
+      <div class="card-body">
+        <% if (success) { %>
+          <div class="alert alert-success">✅ Phone numbers updated successfully.</div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert alert-danger">❌ <%= error %></div>
+        <% } %>
+
+        <div class="mb-3">
+          <label for="botPhone" class="form-label fw-semibold">Bot Phone Number</label>
+          <input
+            type="text"
+            id="botPhone"
+            name="botPhone"
+            class="form-control"
+            style="font-family: monospace;"
+            value="<%= botPhone || '' %>"
+            required
+          />
+          <small class="text-muted">Format: 60123456789 (with country code, no + or spaces)</small>
+        </div>
+
+        <div class="mb-3">
+          <label for="bossPhone" class="form-label fw-semibold">Boss Phone Number</label>
+          <input
+            type="text"
+            id="bossPhone"
+            name="bossPhone"
+            class="form-control"
+            style="font-family: monospace;"
+            value="<%= bossPhone || '' %>"
+            required
+          />
+          <small class="text-muted">Format: 60123456789 (with country code, no + or spaces)</small>
+        </div>
+      </div>
+
+      <div class="card-footer text-end">
+        <a href="/dashboard" class="btn btn-warning me-2">Cancel</a>
+        <button type="submit" class="btn btn-success">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

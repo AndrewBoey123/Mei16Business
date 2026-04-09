@@ -1,0 +1,943 @@
+<!-- Onboarding Modal -->
+<div id="onboardingModal" style="display:none; position:fixed; z-index:1050; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); overflow-y:auto;">
+  <div id="onboardingContent" style="max-width:600px; margin:5% auto; background:white; padding:2rem; border-radius:8px; box-shadow:0 5px 20px rgba(0,0,0,0.3); position:relative;">
+  </div>
+</div>
+
+<script>
+// Open source edition - all features enabled
+function isFreeEdition() {
+  return false; // Always return false to enable all features
+}
+
+function hideIfFree(selector) {
+  // No-op for open source - all features visible
+}
+</script>
+
+
+<script>
+  
+  async function refreshEditionState() {
+    // Open source - always set to opensource
+    localStorage.setItem("MEI_EDITION", "opensource");
+  }
+
+  let suppressCustomTrigger = false;
+
+  let currentStep = 1;
+
+  async function nextOnboardingStep() {
+    const stepData = {};
+
+    if (currentStep === 1) {
+      stepData.BOT_NAME = document.getElementById('BOT_NAME')?.value.trim() || '';
+      stepData.PERSON = document.getElementById('PERSON')?.value.trim() || '';
+      stepData.JOB = document.getElementById('JOB')?.value.trim() || '';
+    } else if (currentStep === 2) {
+      stepData.BOSS_EMAIL = document.getElementById('BOSS_EMAIL')?.value.trim() || '';
+      stepData.INDIVIDUAL_CHATS = document.getElementById('INDIVIDUAL_CHATS')?.value.trim() || '';
+      stepData.GROUP_ALLOWED = document.getElementById('GROUP_ALLOWED')?.value.trim() || '';
+      stepData.GROUP_NAMES = document.getElementById('GROUP_NAMES')?.value.trim() || '';
+    } else if (currentStep === 3) {
+      stepData.localFormat = document.getElementById('localFormat')?.value.trim() || '';
+      stepData.TimeZone = document.getElementById('TimeZone')?.value.trim() || '';
+    } else if (currentStep === 4) {
+      stepData.BOT_PHONE = document.getElementById('BOT_PHONE')?.value.trim() || '';
+      stepData.BOSS_PHONE = document.getElementById('BOSS_PHONE')?.value.trim() || '';
+      stepData.ASST_BOSS_PHONE = document.getElementById('ASST_BOSS_PHONE')?.value.trim() || '';
+    } else if (currentStep === 5) {
+      // Free tier providers
+      stepData.groqApi = document.getElementById('groqApi')?.value.trim() || '';
+      stepData.GROQ_MODEL = document.getElementById('GROQ_MODEL')?.value.trim() || '';
+      stepData.geminiApi = document.getElementById('geminiApi')?.value.trim() || '';
+      stepData.openrouterApi = document.getElementById('openrouterApi')?.value.trim() || '';
+      stepData.OPENROUTER_MODEL = document.getElementById('OPENROUTER_MODEL')?.value.trim() || '';
+      stepData.ollamaUrl = document.getElementById('ollamaUrl')?.value.trim() || '';
+      // Paid providers
+      stepData.deepseekApi = document.getElementById('deepseekApi')?.value.trim() || '';
+      stepData.openaiApi = document.getElementById('openaiApi')?.value.trim() || '';
+      stepData.qwenApi = document.getElementById('qwenApi')?.value.trim() || '';
+      stepData.antApi = document.getElementById('antApi')?.value.trim() || '';
+    } else if (currentStep === 6) {
+      stepData.AUTORUN = document.getElementById('AUTORUN')?.value.trim() || '';
+      stepData.AUTO_ENGINE_CHOICE = document.getElementById('AUTO_ENGINE_CHOICE')?.value.trim() || '';
+    } else if (currentStep === 7) {
+      stepData.RESPONSE_DELAY_MIN_SEC = document.getElementById('RESPONSE_DELAY_MIN_SEC')?.value.trim() || '';
+      stepData.RESPONSE_DELAY_MAX_SEC = document.getElementById('RESPONSE_DELAY_MAX_SEC')?.value.trim() || '';
+      stepData.TYPING_DURATION_MIN_SEC = document.getElementById('TYPING_DURATION_MIN_SEC')?.value.trim() || '';
+      stepData.TYPING_DURATION_MAX_SEC = document.getElementById('TYPING_DURATION_MAX_SEC')?.value.trim() || '';
+      stepData.BLOCK_INTERVAL = document.getElementById('BLOCK_INTERVAL')?.value.trim() || '';
+      stepData.BOSS_NOTIFICATION_EXPIRY = document.getElementById('BOSS_NOTIFICATION_EXPIRY')?.value.trim() || '';
+      stepData.MEDIA_EXPIRY_MINUTES = document.getElementById('MEDIA_EXPIRY_MINUTES')?.value.trim() || '';
+      stepData.PERSONA_RELOAD_SECS = document.getElementById('PERSONA_RELOAD_SECS')?.value.trim() || '';
+      stepData.ENV_RELOAD_SECS = document.getElementById('ENV_RELOAD_SECS')?.value.trim() || '';
+    } else if (currentStep === 8) {
+      stepData.MEISleepMode = document.getElementById('MEISleepMode')?.value.trim() || '';
+      stepData.WAKE_UP_HOUR = document.getElementById('WAKE_UP_HOUR')?.value.trim() || '';
+      stepData.WAKE_UP_MINS = document.getElementById('WAKE_UP_MINS')?.value.trim() || '';
+      stepData.SLEEP_HOUR = document.getElementById('SLEEP_HOUR')?.value.trim() || '';
+      stepData.SLEEP_MINS = document.getElementById('SLEEP_MINS')?.value.trim() || '';
+      stepData.LLM_TIMEOUT_MS = document.getElementById('LLM_TIMEOUT_MS')?.value.trim() || '';
+    } else if (currentStep === 9) {
+      stepData.WEBDASHBOARD_USERNAME = document.getElementById('WEBDASHBOARD_USERNAME')?.value.trim() || '';
+      stepData.WEBDASHBOARD_PASSWORD = document.getElementById('WEBDASHBOARD_PASSWORD')?.value.trim() || '';
+
+      await fetch(`/wizard/save/${currentStep}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(stepData)
+      });
+
+      closeOnboarding();
+      return;
+    }
+
+
+    await fetch(`/wizard/save/${currentStep}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(stepData)
+    });
+
+    currentStep++;
+    renderOnboardingStep();
+  }
+
+  function previousOnboardingStep() {
+    if (currentStep > 1) {
+      currentStep--;
+      renderOnboardingStep();
+    }
+  }
+
+  function skipOnboardingStep() {
+    closeOnboarding();
+  }
+
+  async function renderOnboardingStep() {
+    const modal = document.getElementById('onboardingModal');
+    const content = document.getElementById('onboardingContent');
+    if (!modal || !content) return;
+
+    modal.style.display = 'block';
+    content.innerHTML = '';
+
+    const prefill = await fetch(`/wizard/prefill/${currentStep}`).then(res => res.json());
+
+    if (currentStep === 1) {
+      content.innerHTML = `
+        <button onclick="closeOnboarding()" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:1.5rem; color:#888;">&times;</button>
+        <h4 class="mb-3"><%= BRAND %> Setup Wizard</h4>
+        <p class="text-muted mb-4">Step 1 of 9</p>
+        <div class="form-group mb-3">
+          <label class="fw-bold">What is your Bot's name?</label>
+          <input type="text" class="form-control" id="BOT_NAME" value="${prefill.BOT_NAME || ''}" placeholder="e.g. Meiko">
+        </div>
+        <div class="form-group mb-3">
+          <label class="fw-bold">Who does the bot interact with?</label>
+          <input type="text" class="form-control" id="PERSON" value="${prefill.PERSON || ''}" placeholder="e.g. customer">
+        </div>
+        <div class="form-group mb-4">
+          <label class="fw-bold">What does your bot do?</label>
+          <input type="text" class="form-control" id="JOB" value="${prefill.JOB || ''}" placeholder="e.g. sales, hiring">
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-4">
+          <button class="btn btn-outline-danger" onclick="skipOnboardingStep()">Will do later</button>
+          <button class="btn btn-primary" onclick="nextOnboardingStep()">Next</button>
+        </div>
+      `;
+
+
+    } else if (currentStep === 2) {
+      content.innerHTML = `
+        <button onclick="closeOnboarding()" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:1.5rem; color:#888;">&times;</button>
+        <h4 class="mb-3"><%= BRAND %> Setup Wizard</h4>
+        <p class="text-muted mb-4">Step 2 of 9</p>
+        <div class="form-group mb-3">
+          <label class="fw-bold">Allow individual chats?</label>
+          <select class="form-select" id="INDIVIDUAL_CHATS">            
+            <option value="Yes" ${(prefill.INDIVIDUAL_CHATS === 'Yes' || !prefill.INDIVIDUAL_CHATS)? 'selected' : ''}>Yes</option>
+            <option value="No" ${prefill.INDIVIDUAL_CHATS === 'No' ? 'selected' : ''}>No</option>
+          </select>
+        </div>
+        <div class="form-group mb-3">
+          <label class="fw-bold">Allow group chats?</label>
+          <select class="form-select" id="GROUP_ALLOWED">            
+            <option value="Yes" ${(prefill.GROUP_ALLOWED === 'Yes' || !prefill.GROUP_ALLOWED)? 'selected' : ''}>Yes</option>
+            <option value="No" ${prefill.GROUP_ALLOWED === 'No' ? 'selected' : ''}>No</option>
+          </select>
+        </div>
+        <div class="form-group mb-4">
+          <label class="fw-bold">Group names (Exactly as in WhatsApp and comma separated)</label>
+          <input type="text" class="form-control" id="GROUP_NAMES" value="${prefill.GROUP_NAMES || ''}" placeholder="eg: Sales Group,Customer Service,Office">
+        </div>
+        <div class="d-flex justify-content-between mt-4">
+          <button class="btn btn-outline-danger" onclick="skipOnboardingStep()">Will do later</button>
+          <div>
+            <button class="btn btn-outline-secondary" onclick="previousOnboardingStep()">Back</button>
+            <button class="btn btn-primary" onclick="nextOnboardingStep()">Next</button>
+          </div>
+        </div>
+      `;
+
+      // Disable group fields for FREE edition
+      setTimeout(() => {
+        if (isFreeEdition()) {
+          const groupAllowed = document.getElementById("GROUP_ALLOWED");
+          const groupNames = document.getElementById("GROUP_NAMES");
+
+          if (groupAllowed) {
+            groupAllowed.disabled = true;
+            groupAllowed.style.background = "#e9ecef";
+            groupAllowed.style.cursor = "not-allowed";
+          }
+
+          if (groupNames) {
+            groupNames.disabled = true;
+            groupNames.placeholder = "(This feature is not available in your current version)";
+            groupNames.style.background = "#e9ecef";
+            groupNames.style.cursor = "not-allowed";
+          }
+        }
+      }, 50);
+
+    
+    } else if (currentStep === 3) {
+      content.innerHTML = `
+        <button onclick="closeOnboarding()" style="position:absolute; top:10px; right:10px; background:none; border:none;">&times;</button>
+        <h4 class="mb-3"><%= BRAND %> Setup Wizard</h4>
+        <p class="text-muted mb-4">Step 3 of 9</p>
+
+        <div class="form-group mb-3">
+          <label class="fw-bold">Bot's language format? (default: en-US) </label>
+          <div id="languageWrapper">
+            <select class="form-select" id="languageSelect"
+                    onchange="handleLanguageSelect(this.value)"
+                    onclick="if(this.value==='custom' && !suppressCustomTrigger){handleLanguageSelect('custom')}">
+
+
+              <option value="en-US" ${(prefill.localFormat === 'en-US' || !prefill.localFormat) ? 'selected' : ''}>English (United States)</option>
+              <option value="en-GB" ${prefill.localFormat === 'en-GB' ? 'selected' : ''}>English (United Kingdom)</option>
+              <option value="ms-MY" ${prefill.localFormat === 'ms-MY' ? 'selected' : ''}>Malay (Malaysia)</option>
+              <option value="zh-CN" ${prefill.localFormat === 'zh-CN' ? 'selected' : ''}>Chinese (Simplified)</option>
+              <option value="zh-TW" ${prefill.localFormat === 'zh-TW' ? 'selected' : ''}>Chinese (Traditional)</option>
+              <option value="ja-JP" ${prefill.localFormat === 'ja-JP' ? 'selected' : ''}>Japanese</option>
+              <option value="ko-KR" ${prefill.localFormat === 'ko-KR' ? 'selected' : ''}>Korean</option>
+              <option value="fr-FR" ${prefill.localFormat === 'fr-FR' ? 'selected' : ''}>French</option>
+              <option value="de-DE" ${prefill.localFormat === 'de-DE' ? 'selected' : ''}>German</option>
+              <option value="es-ES" ${prefill.localFormat === 'es-ES' ? 'selected' : ''}>Spanish</option>
+              <option value="it-IT" ${prefill.localFormat === 'it-IT' ? 'selected' : ''}>Italian</option>
+              <option value="id-ID" ${prefill.localFormat === 'id-ID' ? 'selected' : ''}>Indonesian</option>
+              <option value="th-TH" ${prefill.localFormat === 'th-TH' ? 'selected' : ''}>Thai</option>
+              <option value="vi-VN" ${prefill.localFormat === 'vi-VN' ? 'selected' : ''}>Vietnamese</option>
+              <option value="hi-IN" ${prefill.localFormat === 'hi-IN' ? 'selected' : ''}>Hindi</option>
+              <option value="custom">Others..</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group mb-4">
+          <label class="fw-bold">Timezone setting?</label>
+          <div id="timezoneWrapper">
+            
+            <select class="form-select" id="timezoneSelect"
+                    onchange="handleTimezoneSelect(this.value)"
+                    onclick="if(this.value==='custom' && !suppressCustomTrigger){handleTimezoneSelect('custom')}">
+
+              <option value="Asia/Kuala_Lumpur" ${prefill.TimeZone === 'Asia/Kuala_Lumpur' ? 'selected' : ''}>Asia/Kuala_Lumpur</option>
+              <option value="Asia/Singapore" ${prefill.TimeZone === 'Asia/Singapore' ? 'selected' : ''}>Asia/Singapore</option>
+              <option value="Asia/Tokyo" ${prefill.TimeZone === 'Asia/Tokyo' ? 'selected' : ''}>Asia/Tokyo</option>
+              <option value="Asia/Seoul" ${prefill.TimeZone === 'Asia/Seoul' ? 'selected' : ''}>Asia/Seoul</option>
+              <option value="Asia/Jakarta" ${prefill.TimeZone === 'Asia/Jakarta' ? 'selected' : ''}>Asia/Jakarta</option>
+              <option value="Europe/London" ${prefill.TimeZone === 'Europe/London' ? 'selected' : ''}>Europe/London</option>
+              <option value="Europe/Paris" ${prefill.TimeZone === 'Europe/Paris' ? 'selected' : ''}>Europe/Paris</option>
+              <option value="Europe/Berlin" ${prefill.TimeZone === 'Europe/Berlin' ? 'selected' : ''}>Europe/Berlin</option>
+              <option value="America/New_York" ${prefill.TimeZone === 'America/New_York' ? 'selected' : ''}>America/New_York</option>
+              <option value="America/Los_Angeles" ${prefill.TimeZone === 'America/Los_Angeles' ? 'selected' : ''}>America/Los_Angeles</option>
+              <option value="America/Chicago" ${prefill.TimeZone === 'America/Chicago' ? 'selected' : ''}>America/Chicago</option>
+              <option value="Australia/Sydney" ${prefill.TimeZone === 'Australia/Sydney' ? 'selected' : ''}>Australia/Sydney</option>
+              <option value="custom">Others..</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+          <button class="btn btn-outline-danger" onclick="skipOnboardingStep()">Will do later</button>
+          <div>
+            <button class="btn btn-outline-secondary" onclick="previousOnboardingStep()">Back</button>
+            <button class="btn btn-primary" onclick="nextOnboardingStep()">Next</button>
+          </div>
+        </div>
+      `;
+
+      // Handle custom language prefill
+      const knownLangs = [
+        "en-US","en-GB","en-SG","ms-MY","zh-CN","zh-TW","ja-JP","ko-KR",
+        "fr-FR","de-DE","es-ES","it-IT","id-ID","th-TH","vi-VN","hi-IN"
+      ];
+      const langSelect = document.getElementById('languageSelect');
+      if (prefill.localFormat && !knownLangs.includes(prefill.localFormat)) {
+        langSelect.value = "custom";
+        const hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.id = 'localFormat';
+        hidden.value = prefill.localFormat;
+        document.getElementById('languageWrapper').appendChild(hidden);
+      } else {
+        const hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.id = 'localFormat';
+        hidden.value = prefill.localFormat || 'en-US';
+        document.getElementById('languageWrapper').appendChild(hidden);
+      }
+
+      // Handle custom timezone prefill
+      const knownZones = [
+        "Asia/Kuala_Lumpur","Asia/Singapore","Asia/Tokyo","Asia/Seoul","Asia/Jakarta",
+        "Europe/London","Europe/Paris","Europe/Berlin",
+        "America/New_York","America/Los_Angeles","America/Chicago","Australia/Sydney"
+      ];
+      const tzSelect = document.getElementById('timezoneSelect');
+      if (prefill.TimeZone && !knownZones.includes(prefill.TimeZone)) {
+        tzSelect.value = "custom";
+
+        suppressCustomTrigger = true;
+        setTimeout(() => suppressCustomTrigger = false, 1000);
+
+        const hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.id = 'TimeZone';
+        hidden.value = prefill.TimeZone;
+        document.getElementById('timezoneWrapper').appendChild(hidden);
+      } else {
+        const hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.id = 'TimeZone';
+        hidden.value = prefill.TimeZone || 'Asia/Kuala_Lumpur';
+        document.getElementById('timezoneWrapper').appendChild(hidden);
+      }
+
+      // after rendering Step 3 content
+      if (prefill.localFormat && !knownLangs.includes(prefill.localFormat)) {
+        // set dropdown to 'Others..'
+        const select = document.getElementById('languageSelect');
+        if (select) select.value = 'custom';
+
+        suppressCustomTrigger = true;
+        setTimeout(() => suppressCustomTrigger = false, 1000);
+
+
+        // keep hidden actual value for saving
+        const hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.id = 'localFormat';
+        hidden.value = prefill.localFormat;
+        document.getElementById('languageWrapper').appendChild(hidden);
+      }
+
+
+    }
+
+    else if (currentStep === 4) {
+      content.innerHTML = `
+        <button onclick="closeOnboarding()" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:1.5rem;color:#888;">&times;</button>
+        <h4 class="mb-3"><%= BRAND %> Setup Wizard</h4>
+        <p class="text-muted mb-4">Step 4 of 9</p>
+
+        <div class="form-group mb-3">
+          <label class="fw-bold">Bot's phone number?</label>
+          <input type="text" class="form-control" id="BOT_PHONE" value="${prefill.BOT_PHONE || ''}" placeholder="e.g. 60123456789">
+        </div>
+
+        <div class="form-group mb-4">
+          <label class="fw-bold">Boss phone number?</label>
+          <input type="text" class="form-control" id="BOSS_PHONE" value="${prefill.BOSS_PHONE || ''}" placeholder="e.g. 601912221112">
+        </div>
+
+        <div class="form-group mb-4">
+          <label class="fw-bold">Assistant boss phone numbers?</label>
+          <input type="text" class="form-control" id="ASST_BOSS_PHONE" value="${prefill.ASST_BOSS_PHONE || ''}" placeholder="e.g. 60123456789,6011233342,6012343555">
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+          <button class="btn btn-outline-danger" onclick="skipOnboardingStep()">Will do later</button>
+          <div>
+            <button class="btn btn-outline-secondary" onclick="previousOnboardingStep()">Back</button>
+            <button class="btn btn-primary" onclick="nextOnboardingStep()">Next</button>
+          </div>
+        </div>
+      `;
+
+        // Disable Assistant Boss Phone for FREE edition
+        setTimeout(() => {
+          if (isFreeEdition()) {
+            const asstBoss = document.getElementById("ASST_BOSS_PHONE");
+
+            if (asstBoss) {
+              asstBoss.disabled = true;
+              asstBoss.placeholder = "(This feature is not available in your current version)";
+              asstBoss.value = "";
+              asstBoss.style.background = "#e9ecef";
+              asstBoss.style.cursor = "not-allowed";
+            }
+          }
+        }, 50);
+
+    } else if (currentStep === 5) {
+      content.innerHTML = `
+        <button onclick="closeOnboarding()" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:1.5rem;color:#888;">&times;</button>
+        <h4 class="mb-3"><%= BRAND %> Setup Wizard</h4>
+        <p class="text-muted mb-4">Step 5 of 9</p>
+        
+        <div class="alert alert-info mb-3">
+          <strong>Free Tier Providers (Recommended):</strong> GROQ, Gemini, and OpenRouter offer free tiers.
+        </div>
+
+        <div class="form-group mb-3">
+          <label class="fw-bold">GROQ API Key <span class="badge bg-success">Free Tier</span></label>
+          <input type="text" class="form-control" id="groqApi" value="${prefill.groqApi || ''}" placeholder="gsk_...">
+          <small class="text-muted">Get free key at console.groq.com - supports text, vision, and voice</small>
+        </div>
+        <div class="form-group mb-3">
+          <label class="fw-bold">GROQ Model <span class="badge bg-info">Optional</span></label>
+          <input type="text" class="form-control" id="GROQ_MODEL" value="${prefill.GROQ_MODEL || 'llama-3.3-70b-versatile'}" placeholder="llama-3.3-70b-versatile">
+          <small class="text-muted">Default: llama-3.3-70b-versatile. Options: gemma2-9b-it, mixtral-8x7b-32768, llama-3.1-8b-instant</small>
+        </div>
+        <div class="form-group mb-3">
+          <label class="fw-bold">Gemini API Key <span class="badge bg-success">Free Tier</span></label>
+          <input type="text" class="form-control" id="geminiApi" value="${prefill.geminiApi || ''}" placeholder="AIza...">
+          <small class="text-muted">Get free key at makersuite.google.com</small>
+        </div>
+        <div class="form-group mb-3">
+          <label class="fw-bold">OpenRouter API Key <span class="badge bg-success">Free Tier</span></label>
+          <input type="text" class="form-control" id="openrouterApi" value="${prefill.openrouterApi || ''}" placeholder="sk-or-...">
+          <small class="text-muted">Get free key at openrouter.com</small>
+        </div>
+        <div class="form-group mb-3">
+          <label class="fw-bold">OpenRouter Model <span class="badge bg-info">Optional</span></label>
+          <input type="text" class="form-control" id="OPENROUTER_MODEL" value="${prefill.OPENROUTER_MODEL || 'meta-llama/llama-3.1-70b-instruct:free'}" placeholder="meta-llama/llama-3.1-70b-instruct:free">
+          <small class="text-muted">Default: meta-llama/llama-3.1-70b-instruct:free. Options: openai/gpt-oss-120b, anthropic/claude-3.7-sonnet, google/gemini-2.0-flash-exp</small>
+        </div>
+        <div class="form-group mb-3">
+          <label class="fw-bold">Ollama/Local URL</label>
+          <input type="text" class="form-control" id="ollamaUrl" value="${prefill.ollamaUrl || 'http://localhost:11434'}" placeholder="http://localhost:11434">
+          <small class="text-muted">For self-hosted models (100% free)</small>
+        </div>
+        
+        <hr class="my-4">
+        <p class="text-muted"><strong>Optional Paid Providers:</strong></p>
+        
+        <div class="form-group mb-3">
+          <label class="fw-bold">Deepseek API Key</label>
+          <input type="text" class="form-control" id="deepseekApi" value="${prefill.deepseekApi || ''}" placeholder="sk-...">
+        </div>
+        <div class="form-group mb-3">
+          <label class="fw-bold">OpenAI API Key</label>
+          <input type="text" class="form-control" id="openaiApi" value="${prefill.openaiApi || ''}" placeholder="sk-...">
+        </div>
+        <div class="form-group mb-3">
+          <label class="fw-bold">Qwen API Key</label>
+          <input type="text" class="form-control" id="qwenApi" value="${prefill.qwenApi || ''}" placeholder="sk-...">
+        </div>
+        <div class="form-group mb-4">
+          <label class="fw-bold">Anthropic API Key <span class="text-muted">(No group chat support)</span></label>
+          <input type="text" class="form-control" id="antApi" value="${prefill.antApi || ''}" placeholder="sk-ant-...">
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+          <button class="btn btn-outline-danger" onclick="skipOnboardingStep()">Will do later</button>
+          <div>
+            <button class="btn btn-outline-secondary" onclick="previousOnboardingStep()">Back</button>
+            <button class="btn btn-primary" onclick="nextOnboardingStep()">Next</button>
+          </div>
+        </div>
+      `;
+    } else if (currentStep === 6) {
+      content.innerHTML = `
+        <button onclick="closeOnboarding()" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:1.5rem;color:#888;">&times;</button>
+        <h4 class="mb-3"><%= BRAND %> Setup Wizard</h4>
+        <p class="text-muted mb-4">Step 6 of 9</p>
+
+
+        <div class="form-group mb-3">
+          <label class="fw-bold">Auto-run bot on reboot?</label>
+          <select class="form-select" id="AUTORUN">            
+            <option value="Yes" ${(prefill.AUTORUN === 'Yes' || !prefill.AUTORUN)? 'selected' : ''}>Yes</option>
+            <option value="No" ${prefill.AUTORUN === 'No' ? 'selected' : ''}>No</option>
+          </select>
+        </div>
+
+        <div class="form-group mb-4">
+          <label class="fw-bold">Auto Engine Choice <span class="badge bg-success">GROQ Recommended</span></label>
+          <select class="form-select" id="AUTO_ENGINE_CHOICE">
+            <option value="1" ${(prefill.AUTO_ENGINE_CHOICE === '1' || !prefill.AUTO_ENGINE_CHOICE) ? 'selected' : ''}>1 - GROQ (Free - Recommended)</option>
+            <option value="2" ${prefill.AUTO_ENGINE_CHOICE === '2' ? 'selected' : ''}>2 - Gemini (Free)</option>
+            <option value="3" ${prefill.AUTO_ENGINE_CHOICE === '3' ? 'selected' : ''}>3 - OpenRouter (Free)</option>
+            <option value="4" ${prefill.AUTO_ENGINE_CHOICE === '4' ? 'selected' : ''}>4 - Local/Ollama</option>
+            <option value="5" ${prefill.AUTO_ENGINE_CHOICE === '5' ? 'selected' : ''}>5 - Deepseek</option>
+            <option value="6" ${prefill.AUTO_ENGINE_CHOICE === '6' ? 'selected' : ''}>6 - OpenAI</option>
+            <option value="7" ${prefill.AUTO_ENGINE_CHOICE === '7' ? 'selected' : ''}>7 - Qwen</option>
+            <option value="8" ${prefill.AUTO_ENGINE_CHOICE === '8' ? 'selected' : ''}>8 - Anthropic (No group chat)</option>
+          </select>
+        </div>
+
+
+        <div class="d-flex justify-content-between mt-4">
+          <button class="btn btn-outline-danger" onclick="skipOnboardingStep()">Will do later</button>
+          <div>
+            <button class="btn btn-outline-secondary" onclick="previousOnboardingStep()">Back</button>
+            <button class="btn btn-primary" onclick="nextOnboardingStep()">Next</button>
+          </div>
+        </div>
+      `;
+    } else if (currentStep === 7) {
+      content.innerHTML = `
+        <button onclick="closeOnboarding()" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:1.5rem;color:#888;">&times;</button>
+        <h4 class="mb-3"><%= BRAND %> Setup Wizard</h4>
+        <p class="text-muted mb-4">Step 7 of 9</p>
+
+        <div class="form-group mb-3">
+          <label class="fw-bold">Response delay (min sec)</label>
+          <input type="text" class="form-control" id="RESPONSE_DELAY_MIN_SEC" value="${prefill.RESPONSE_DELAY_MIN_SEC || ''}" placeholder="e.g. 2">
+        </div>
+        <div class="form-group mb-3">
+          <label class="fw-bold">Response delay (max sec)</label>
+          <input type="text" class="form-control" id="RESPONSE_DELAY_MAX_SEC" value="${prefill.RESPONSE_DELAY_MAX_SEC || ''}" placeholder="e.g. 6">
+        </div>
+        <div class="form-group mb-3">
+          <label class="fw-bold">Typing duration (min sec)</label>
+          <input type="text" class="form-control" id="TYPING_DURATION_MIN_SEC" value="${prefill.TYPING_DURATION_MIN_SEC || ''}" placeholder="e.g. 3">
+        </div>
+        <div class="form-group mb-3">
+          <label class="fw-bold">Typing duration (max sec)</label>
+          <input type="text" class="form-control" id="TYPING_DURATION_MAX_SEC" value="${prefill.TYPING_DURATION_MAX_SEC || ''}" placeholder="e.g. 5">
+        </div>
+        <div class="form-group mb-4">
+          <label class="fw-bold">Block Message Delay (keep this value above 5 secs)</label>
+          <input type="text" class="form-control" id="BLOCK_INTERVAL"
+                 value="${prefill.BLOCK_INTERVAL || ''}" placeholder="e.g. 5">
+        </div>
+        <div class="form-group mb-3">
+          <label class="fw-bold">Boss notification expiry (minutes)</label>
+          <input type="text" class="form-control" id="BOSS_NOTIFICATION_EXPIRY" value="${prefill.BOSS_NOTIFICATION_EXPIRY || ''}" placeholder="e.g. 60">
+        </div>
+        <div class="form-group mb-3">
+          <label class="fw-bold">Media expiry (minutes)</label>
+          <input type="text" class="form-control" id="MEDIA_EXPIRY_MINUTES" value="${prefill.MEDIA_EXPIRY_MINUTES || ''}" placeholder="e.g. 2">
+        </div>
+        <div class="form-group mb-3">
+          <label class="fw-bold">Persona reload interval (secs)</label>
+          <input type="text" class="form-control" id="PERSONA_RELOAD_SECS" value="${prefill.PERSONA_RELOAD_SECS || ''}" placeholder="e.g. 30">
+        </div>
+        <div class="form-group mb-4">
+          <label class="fw-bold">.env reload interval (secs)</label>
+          <input type="text" class="form-control" id="ENV_RELOAD_SECS" value="${prefill.ENV_RELOAD_SECS || ''}" placeholder="e.g. 30">
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+          <button class="btn btn-outline-danger" onclick="skipOnboardingStep()">Will do later</button>
+          <div>
+            <button class="btn btn-outline-secondary" onclick="previousOnboardingStep()">Back</button>
+            <button class="btn btn-primary" onclick="nextOnboardingStep()">Next</button>
+          </div>
+        </div>
+      `;
+
+        setTimeout(() => {
+          if (isFreeEdition()) {
+            const block = document.getElementById("BLOCK_INTERVAL");
+            if (block) {
+              block.disabled = true;
+              block.placeholder = "(This feature is not available in your current version)";
+              block.value = "";
+              block.style.background = "#e9ecef";
+              block.style.cursor = "not-allowed";
+            }
+          }
+        }, 50);
+
+    } else if (currentStep === 8) {
+      content.innerHTML = `
+        <button onclick="closeOnboarding()" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:1.5rem;color:#888;">&times;</button>
+        <h4 class="mb-3"><%= BRAND %> Setup Wizard</h4>
+        <p class="text-muted mb-4">Step 8 of 9</p>
+        <div id="sleepEditionNotice10"></div>
+
+
+        <div class="form-group mb-3">
+          <label class="fw-bold">Enable sleep mode?</label>
+          <select class="form-select" id="MEISleepMode">
+            <option value="On" ${prefill.MEISleepMode === 'On' ? 'selected' : ''}>On</option>
+            <option value="Off" ${prefill.MEISleepMode === 'Off' ? 'selected' : ''}>Off</option>
+          </select>
+        </div>
+
+        <div class="form-group mb-3">
+          <label class="fw-bold">Wake up hour (0–23)</label>
+          <input type="text" class="form-control" id="WAKE_UP_HOUR" value="${prefill.WAKE_UP_HOUR || ''}" placeholder="e.g. 8">
+        </div>
+        <div class="form-group mb-3">
+          <label class="fw-bold">Wake up minute (0–59)</label>
+          <input type="text" class="form-control" id="WAKE_UP_MINS" value="${prefill.WAKE_UP_MINS || ''}" placeholder="e.g. 30">
+        </div>
+        <div class="form-group mb-3">
+          <label class="fw-bold">Sleep hour (0–23)</label>
+          <input type="text" class="form-control" id="SLEEP_HOUR" value="${prefill.SLEEP_HOUR || ''}" placeholder="e.g. 22">
+        </div>
+        <div class="form-group mb-4">
+          <label class="fw-bold">Sleep minute (0–59)</label>
+          <input type="text" class="form-control" id="SLEEP_MINS" value="${prefill.SLEEP_MINS || ''}" placeholder="e.g. 45">
+        </div>
+        <div class="form-group mb-4">
+          <label class="fw-bold">LLM timeout (ms)</label>
+          <input type="text" class="form-control" id="LLM_TIMEOUT_MS" value="${prefill.LLM_TIMEOUT_MS || ''}" placeholder="e.g. 15000">
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+          <button class="btn btn-outline-danger" onclick="skipOnboardingStep()">Will do later</button>
+          <div>
+            <button class="btn btn-outline-secondary" onclick="previousOnboardingStep()">Back</button>
+            <button class="btn btn-primary" onclick="nextOnboardingStep()">Next</button>
+          </div>
+        </div>
+      `;
+
+        setTimeout(() => {
+          if (isFreeEdition()) {
+
+            // 1. Red warning notice
+            const notice10 = document.getElementById("sleepEditionNotice10");
+            if (notice10) {
+              notice10.innerHTML = `
+                <p style="color:#d9534f; font-weight:bold; margin-top:-10px; margin-bottom:15px;">
+                  This feature is not available in your current version
+                </p>
+              `;
+            }
+
+            // 2. Prepare fields just like Step 8
+            const sleepMode = document.getElementById("MEISleepMode"); // dropdown
+
+            const wakeHour = document.getElementById("WAKE_UP_HOUR");
+            const wakeMin = document.getElementById("WAKE_UP_MINS");
+            const sleepHour = document.getElementById("SLEEP_HOUR");
+            const sleepMin = document.getElementById("SLEEP_MINS");
+            const llmTimeout = document.getElementById("LLM_TIMEOUT_MS");
+
+            const disabledInputs = [wakeHour, wakeMin, sleepHour, sleepMin, llmTimeout];
+            const disabledSelects = [sleepMode];
+
+            // Disable text inputs (same as step 8)
+            disabledInputs.forEach(el => {
+              if (el) {
+                el.disabled = true;
+                el.value = "";
+                el.placeholder = "(This feature is not available in your current version)";
+                el.style.background = "#e9ecef";
+                el.style.cursor = "not-allowed";
+              }
+            });
+
+            // Disable dropdowns (same as step 8)
+            disabledSelects.forEach(el => {
+              if (el) {
+                el.disabled = true;
+                el.style.background = "#e9ecef";
+                el.style.cursor = "not-allowed";
+              }
+            });
+
+          }
+        }, 40);
+
+        
+    } else if (currentStep === 9) {
+      content.innerHTML = `
+        <button onclick="closeOnboarding()" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:1.5rem;color:#888;">&times;</button>
+        <h4 class="mb-3"><%= BRAND %> Setup Wizard</h4>
+        <p class="text-muted mb-4">Step 9 of 9</p>
+
+        <div class="form-group mb-3">
+          <label class="fw-bold">Dashboard Username</label>
+          <input type="text" class="form-control" id="WEBDASHBOARD_USERNAME" value="${prefill.WEBDASHBOARD_USERNAME || ''}" placeholder="admin">
+        </div>
+        <div class="form-group mb-4">
+          <label class="fw-bold">Dashboard Password</label>
+          <input type="password" class="form-control" id="WEBDASHBOARD_PASSWORD" value="${prefill.WEBDASHBOARD_PASSWORD || ''}" placeholder="••••••••">
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+          <button class="btn btn-outline-danger" onclick="skipOnboardingStep()">Will do later</button>
+          <div>
+            <button class="btn btn-outline-secondary" onclick="previousOnboardingStep()">Back</button>
+            <button class="btn btn-primary" onclick="nextOnboardingStep()">Save</button>
+            <button class="btn btn-success" onclick="saveAndRebootServer()">Save & Reboot</button>
+          </div>
+        </div>
+      `;
+    } 
+  }
+
+  function closeOnboarding() {
+    document.getElementById('onboardingModal').style.display = 'none';
+    currentStep = 1;
+  }
+
+  async function saveAndRebootServer() {
+    const stepData = {
+      WEBDASHBOARD_USERNAME: document.getElementById('WEBDASHBOARD_USERNAME')?.value.trim() || '',
+      WEBDASHBOARD_PASSWORD: document.getElementById('WEBDASHBOARD_PASSWORD')?.value.trim() || ''
+    };
+
+    try {
+      // 1. Save FINAL step (Step 11)
+      const saveRes = await fetch('/wizard/save/9', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(stepData)
+      });
+
+      if (!saveRes.ok) {
+        alert('Failed to save settings.');
+        return;
+      }
+
+      // 2. Confirm reboot
+      const confirmReboot = confirm(
+        'Settings saved successfully.\nDo you want to reboot the server now?'
+      );
+      if (!confirmReboot) {
+        alert('Reboot cancelled. Settings saved.');
+        closeOnboarding();
+        return;
+      }
+
+      // 3. Disable button
+      const btn = event?.target;
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Rebooting...';
+      }
+
+      // 4. Trigger reboot
+      const rebootRes = await fetch('/api/app-control/reboot', {
+        method: 'POST'
+      });
+
+      if (rebootRes.ok) {
+        alert('Server is rebooting now. This page will disconnect shortly.');
+        closeOnboarding();
+      } else {
+        alert('Failed to trigger reboot. Please reboot manually.');
+      }
+
+    } catch (err) {
+      console.error('Save & Reboot error:', err);
+      alert('Unexpected error while saving or rebooting.');
+    }
+  }
+</script>
+
+<script>
+function handleLanguageSelect(value) {
+  const wrapper = document.getElementById('languageWrapper');
+
+  if (value === 'custom') {
+    // prevent immediate re-trigger
+    suppressCustomTrigger = true;
+
+    wrapper.innerHTML = `
+      <input type="text" class="form-control" id="localFormat"
+             placeholder="Enter custom language code (e.g. pt-BR)"
+             onblur="persistCustomLanguage(this.value)"
+             onkeydown="if(event.key==='Enter'){persistCustomLanguage(this.value)}">
+      <small class="text-muted d-block mt-1">
+        Press Enter or click outside to confirm. 
+        <a href="#" onclick="revertLanguageDropdown(); return false;">Back to list</a>
+      </small>
+    `;
+  } else {
+    // restore normal behavior
+    suppressCustomTrigger = false;
+
+    // ensure hidden field always exists
+    let hidden = document.getElementById('localFormat');
+    if (!hidden) {
+      hidden = document.createElement('input');
+      hidden.type = 'hidden';
+      hidden.id = 'localFormat';
+      wrapper.appendChild(hidden);
+    }
+    hidden.value = value;
+  }
+}
+
+function persistCustomLanguage(val) {
+  const input = document.getElementById('localFormat');
+  if (input) input.value = val.trim();
+  suppressCustomTrigger = false; // re-enable future "Others" click
+}
+
+function revertLanguageDropdown() {
+  suppressCustomTrigger = false; // ensure we can click again
+  const wrapper = document.getElementById('languageWrapper');
+  const prefillValue = document.getElementById('localFormat')?.value || 'en-US';
+
+  // restore the dropdown without re-rendering full page
+  wrapper.innerHTML = `
+    <select class="form-select" id="languageSelect"
+            onchange="handleLanguageSelect(this.value)"
+            onclick="if(this.value==='custom' && !suppressCustomTrigger){handleLanguageSelect('custom')}">
+      <option value="en-US" ${prefillValue === 'en-US' ? 'selected' : ''}>English (United States)</option>
+      <option value="en-GB" ${prefillValue === 'en-GB' ? 'selected' : ''}>English (United Kingdom)</option>
+      <option value="ms-MY" ${prefillValue === 'ms-MY' ? 'selected' : ''}>Malay (Malaysia)</option>
+      <option value="zh-CN" ${prefillValue === 'zh-CN' ? 'selected' : ''}>Chinese (Simplified)</option>
+      <option value="zh-TW" ${prefillValue === 'zh-TW' ? 'selected' : ''}>Chinese (Traditional)</option>
+      <option value="ja-JP" ${prefillValue === 'ja-JP' ? 'selected' : ''}>Japanese</option>
+      <option value="ko-KR" ${prefillValue === 'ko-KR' ? 'selected' : ''}>Korean</option>
+      <option value="fr-FR" ${prefillValue === 'fr-FR' ? 'selected' : ''}>French</option>
+      <option value="de-DE" ${prefillValue === 'de-DE' ? 'selected' : ''}>German</option>
+      <option value="es-ES" ${prefillValue === 'es-ES' ? 'selected' : ''}>Spanish</option>
+      <option value="it-IT" ${prefillValue === 'it-IT' ? 'selected' : ''}>Italian</option>
+      <option value="id-ID" ${prefillValue === 'id-ID' ? 'selected' : ''}>Indonesian</option>
+      <option value="th-TH" ${prefillValue === 'th-TH' ? 'selected' : ''}>Thai</option>
+      <option value="vi-VN" ${prefillValue === 'vi-VN' ? 'selected' : ''}>Vietnamese</option>
+      <option value="hi-IN" ${prefillValue === 'hi-IN' ? 'selected' : ''}>Hindi</option>
+      <option value="custom">Others..</option>
+    </select>
+  `;
+
+  // restore hidden input
+  const hidden = document.createElement('input');
+  hidden.type = 'hidden';
+  hidden.id = 'localFormat';
+  hidden.value = prefillValue;
+  wrapper.appendChild(hidden);
+}
+
+</script>
+
+<script>
+function handleVoiceLangSelect(value) {
+  const wrapper = document.getElementById('voiceLangWrapper');
+  if (value === 'custom') {
+    suppressCustomTrigger = true;
+    wrapper.innerHTML = `
+      <input type="text" class="form-control" id="VOICELANGUAGE"
+             placeholder="Enter custom voice language code (e.g. pt-BR)"
+             onblur="persistVoiceLang(this.value)"
+             onkeydown="if(event.key==='Enter'){persistVoiceLang(this.value)}">
+      <small class="text-muted d-block mt-1">
+        Press Enter or click outside to confirm. 
+        <a href="#" onclick="revertVoiceLangDropdown(); return false;">Back to list</a>
+      </small>
+    `;
+  } else {
+    suppressCustomTrigger = false;
+    let hidden = document.getElementById('VOICELANGUAGE');
+    if (!hidden) {
+      hidden = document.createElement('input');
+      hidden.type = 'hidden';
+      hidden.id = 'VOICELANGUAGE';
+      wrapper.appendChild(hidden);
+    }
+    hidden.value = value;
+  }
+}
+
+function persistVoiceLang(val) {
+  const input = document.getElementById('VOICELANGUAGE');
+  if (input) input.value = val.trim();
+  suppressCustomTrigger = false;
+}
+
+function revertVoiceLangDropdown() {
+  suppressCustomTrigger = false;
+  renderOnboardingStep(); // reload Step 7 safely
+}
+
+</script>
+
+<script>
+function handleTimezoneSelect(value) {
+  const wrapper = document.getElementById('timezoneWrapper');
+  if (value === 'custom') {
+    suppressCustomTrigger = true;
+    wrapper.innerHTML = `
+      <input type="text" class="form-control" id="TimeZone"
+             placeholder="Enter custom timezone (e.g. America/New_York)"
+             onblur="persistTimezone(this.value)"
+             onkeydown="if(event.key==='Enter'){persistTimezone(this.value)}">
+      <small class="text-muted d-block mt-1">
+        Press Enter or click outside to confirm. 
+        <a href="#" onclick="revertTimezoneDropdown(); return false;">Back to list</a>
+      </small>
+    `;
+  } else {
+    suppressCustomTrigger = false;
+    let hidden = document.getElementById('TimeZone');
+    if (!hidden) {
+      hidden = document.createElement('input');
+      hidden.type = 'hidden';
+      hidden.id = 'TimeZone';
+      wrapper.appendChild(hidden);
+    }
+    hidden.value = value;
+  }
+}
+
+function persistTimezone(val) {
+  const input = document.getElementById('TimeZone');
+  if (input) input.value = val.trim();
+  suppressCustomTrigger = false;
+}
+
+function revertTimezoneDropdown() {
+  suppressCustomTrigger = false;
+  renderOnboardingStep(); // reload Step 3 safely
+}
+
+
+
+function handleVoiceIdSelect(value) {
+  const wrapper = document.getElementById('voiceIdWrapper');
+  if (value === 'custom') {
+    suppressCustomTrigger = true;
+    wrapper.innerHTML = `
+      <input type="text" class="form-control" id="VOICE_ID"
+             placeholder="Enter custom ElevenLabs voice ID"
+             onblur="persistVoiceId(this.value)"
+             onkeydown="if(event.key==='Enter'){persistVoiceId(this.value)}">
+      <small class="text-muted d-block mt-1">
+        Press Enter or click outside to confirm. 
+        <a href="#" onclick="revertVoiceIdDropdown(); return false;">Back to list</a>
+      </small>
+    `;
+  } else {
+    suppressCustomTrigger = false;
+    let hidden = document.getElementById('VOICE_ID');
+    if (!hidden) {
+      hidden = document.createElement('input');
+      hidden.type = 'hidden';
+      hidden.id = 'VOICE_ID';
+      wrapper.appendChild(hidden);
+    }
+    hidden.value = value;
+  }
+}
+
+function persistVoiceId(val) {
+  const input = document.getElementById('VOICE_ID');
+  if (input) input.value = val.trim();
+  suppressCustomTrigger = false;
+}
+
+function revertVoiceIdDropdown() {
+  suppressCustomTrigger = false;
+  renderOnboardingStep(); // reload Step 7 safely
+}
+
+
+
+</script>

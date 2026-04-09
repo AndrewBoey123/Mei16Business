@@ -1,0 +1,181 @@
+<%- include('partials/header') %>
+
+<div class="container-fluid px-4 py-3">
+  <div class="card shadow mb-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Chat History Viewer</h5>
+      <div class="d-flex gap-2">
+        <% const jsonLink = selectedFile ? `/chathistory/download-json?file=${encodeURIComponent(selectedFile)}` : '#'; %>
+        <a href="<%= jsonLink %>"
+           class="btn btn-sm <%= selectedFile ? 'btn-outline-light' : 'btn-outline-secondary disabled' %>"
+           <%= !selectedFile ? 'data-bs-toggle="tooltip" title="Please select a file first."' : '' %>>
+           Export JSON
+        </a>
+        <a href="/chathistory/download-zip"
+           class="btn btn-sm btn-light border border-secondary text-dark"
+           data-bs-toggle="tooltip" title="Download all chats as a ZIP archive">
+           Download All as ZIP
+        </a>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <% if (noResultsFound) { %>
+        <div class="alert alert-warning">No results found.</div>
+      <% } %>
+
+
+
+      <!-- JSON Upload Form -->
+      <form id="uploadForm" action="/chathistory/upload" method="POST" enctype="multipart/form-data" class="mb-3">
+        <div class="row align-items-end">
+          <div class="col-md-6">
+            <label for="uploadFile" class="form-label fw-semibold">Upload Chat JSON</label>
+            <input type="file" name="chatFile" id="uploadFile" accept=".json" class="form-control" required>
+          </div>
+          <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100 mt-3">Upload</button>
+          </div>
+        </div>
+      </form>
+
+      <hr class="my-4">
+
+      <form id="filterForm" method="get" action="/chathistory">
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Select Chat File</label>
+            <select name="file" id="file" class="form-select" required>
+              <option value="">-- Choose a chat history file --</option>
+              <% fileList.forEach(file => { %>
+                <option value="<%= file %>" <%= file === selectedFile ? 'selected' : '' %>><%= file %></option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Search Keyword / Name / Phone</label>
+            <input type="text" name="search" value="<%= search %>" class="form-control" placeholder="Optional search..." />
+          </div>
+
+          <div class="col-md-2">
+            <label class="form-label fw-semibold">Start Date</label>
+            <input type="date" name="start" value="<%= startDate %>" class="form-control" />
+          </div>
+
+          <div class="col-md-2">
+            <label class="form-label fw-semibold">End Date</label>
+            <input type="date" name="end" value="<%= endDate %>" class="form-control" />
+          </div>
+
+         <!-- Right-aligned Search button (same row as inputs) -->
+          <div class="col-md-1 d-flex align-items-end mt-3">
+            <button type="submit" class="btn btn-success w-100">Search</button>
+          </div>
+          <hr class="my-4">
+          <div id="deleteAlert" class="alert alert-success d-none" role="alert"></div>
+        </div>
+      </form>
+
+
+      <% if (uploadMessage) { %>
+        <div class="alert alert-info"><%= uploadMessage %></div>
+      <% } %>
+
+      <% if (!chatData || chatData.length === 0) { %>
+        <div class="alert alert-info">Select a chat file to view its conversation history.</div>
+      <% } else { %>
+      <div class="d-flex justify-content-end">
+            <button id="deleteBtn" class="btn btn-danger" style="width: 130px; height: 38px;"
+                    onclick="deleteSelectedChat()" <%= selectedFile ? '' : 'disabled' %>>
+              Delete Chat
+            </button>
+      </div>
+        <div class="table-responsive mt-3">
+          <table class="table table-bordered table-hover">
+            <thead class="table-light">
+              <tr>
+                <th>#</th>
+                <th>Datetime</th>
+                <th>User Phone</th>
+                <th>User Name</th>
+                <th>User Message</th>
+                <th>Mei Response</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% chatData.forEach((entry, i) => { %>
+                <tr>
+                  <td><%= i + 1 %></td>
+                  <td><%= new Date(entry.datetime).toLocaleString() %></td>
+                  <td><%= entry.user_phone %></td>
+                  <td><%= entry.user_name %></td>
+                  <td><%- highlight(entry.user_message, search) %></td>
+                  <td><%- highlight(entry.mei_response, search) %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+          <!-- Full-width Delete button below chat file dropdown -->
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<script>
+  const fileDropdown = document.querySelector('select[name="file"]');
+  const deleteBtn = document.getElementById('deleteBtn');
+  const deleteAlert = document.getElementById('deleteAlert');
+
+  // Submit the form when a chat file is selected
+  fileDropdown.addEventListener('change', function () {
+    document.getElementById('filterForm').submit();
+  });
+
+  // Enable or disable the Delete button based on file selection
+  fileDropdown.addEventListener('change', () => {
+    deleteBtn.disabled = !fileDropdown.value;
+    deleteAlert.classList.add('d-none');
+  });
+
+  // On page load, update Delete button state
+  document.addEventListener('DOMContentLoaded', () => {
+    deleteBtn.disabled = !fileDropdown.value;
+
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+      new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  });
+
+  // Delete selected chat file
+  function deleteSelectedChat() {
+    const file = fileDropdown.value;
+    if (!file) return;
+
+    if (confirm(`⚠️ Are you sure you want to delete "${file}"? This action cannot be undone.`)) {
+      fetch('/chathistory/delete-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ file })
+      })
+      .then(res => res.json())
+      .then(data => {
+        deleteAlert.classList.remove('d-none');
+        deleteAlert.classList.remove('alert-success', 'alert-danger');
+
+        if (data.success) {
+          deleteAlert.classList.add('alert-success');
+          deleteAlert.innerText = data.message;
+          setTimeout(() => location.reload(), 1500);
+        } else {
+          deleteAlert.classList.add('alert-danger');
+          deleteAlert.innerText = data.message;
+        }
+      });
+    }
+  }
+</script>
+
+<%- include('partials/footer') %>

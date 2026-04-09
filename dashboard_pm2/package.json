@@ -1,0 +1,40 @@
+{
+  "name": "mei-dashboard",
+  "version": "16.0.0",
+  "description": "MEI WhatsApp Bot - Web Dashboard",
+  "main": "dashboard.js",
+  "scripts": {
+    "start": "node dashboard.js",
+    "dev": "nodemon dashboard.js",
+    "pm2:start": "pm2 start dashboard.js --name MeiDashboard",
+    "pm2:stop": "pm2 stop MeiDashboard",
+    "pm2:restart": "pm2 restart MeiDashboard"
+  },
+  "keywords": [
+    "dashboard",
+    "whatsapp",
+    "bot",
+    "admin"
+  ],
+  "author": "MEI Team",
+  "license": "MIT",
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "archiver": "^7.0.1",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.3.1",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-session": "^1.18.1",
+    "multer": "^2.0.2",
+    "node-pty": "^1.0.0",
+    "serve-favicon": "^2.5.1",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

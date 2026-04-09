@@ -1,0 +1,20 @@
+<%- include('partials/header') %>
+
+<div class="container-fluid px-4 py-3">
+  <div class="card shadow">
+
+
+    <h2>Scan WhatsApp QR Code</h2>
+    <p>This QR code refreshes automatically when a new one is generated.</p>
+    <img id="qrImage" src="<%= qrUrl %>?t=<%= Date.now() %>" width="300" height="300">
+    <script>
+        setInterval(() => {
+            const img = document.getElementById('qrImage');
+            img.src = '<%= qrUrl %>?t=' + Date.now(); // force refresh every 5 seconds
+        }, 5000);
+    </script>
+
+</div>
+</div>
+
+<%- include('partials/footer') %>

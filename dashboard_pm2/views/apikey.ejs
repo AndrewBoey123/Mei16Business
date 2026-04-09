@@ -1,0 +1,41 @@
+<%- include('partials/header') %>
+
+<div class="container-fluid px-4 py-3">
+  <div class="card shadow">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">API Keys Management</h5>
+    </div>
+    <div class="card-body">
+      <% if (saved) { %>
+        <div class="alert alert-success">✅ API keys updated successfully.</div>
+      <% } %>
+
+      <form method="POST" action="/apikey">
+        <div class="mb-3">
+          <label class="form-label fw-semibold">DeepSeek API Key</label>
+          <input type="text" name="deepseekApi" value="<%= deepseekApi %>" class="form-control font-monospace" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">OpenAI API Key</label>
+          <input type="text" name="openaiApi" value="<%= openaiApi %>" class="form-control font-monospace" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Qwen API Key</label>
+          <input type="text" name="qwenApi" value="<%= qwenApi %>" class="form-control font-monospace" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Antropic API Key</label>
+          <input type="text" name="antApi" value="<%= antApi %>" class="form-control font-monospace" />
+          <div class="form-text text-warning">Warning: Antropic API may not work well with group chats</div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+          <a href="/dashboard" class="btn btn-warning">Cancel</a>
+          <button type="submit" class="btn btn-success">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>
