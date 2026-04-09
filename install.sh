@@ -16,6 +16,8 @@ echo ""
 if [ -f /etc/os-release ]; then
     . /etc/os-release
     OS=$ID
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    OS="macos"
 elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "win32" ]]; then
     OS="windows"
 else
@@ -38,6 +40,28 @@ if [ "$OS" = "windows" ] || [[ "$OS" == *"MINGW"* ]] || [[ "$OS" == *"MSYS"* ]];
     echo "3. ffmpeg: https://ffmpeg.org/download.html#build-windows"
     echo "4. GraphicsMagick: http://www.graphicsmagick.org/download.html"
     echo "5. Ghostscript: https://ghostscript.com/releases/gsdnld.html"
+    echo ""
+    echo "Then run these commands:"
+    echo ""
+    echo "  git clone https://github.com/AndrewBoey123/Mei16Business.git Mei"
+    echo "  cd Mei"
+    echo "  npm install"
+    echo "  npm run node_mei"
+    echo ""
+    exit 0
+fi
+
+# macOS-specific instructions
+if [ "$OS" = "macos" ] || [[ "$OSTYPE" == "darwin"* ]]; then
+    echo "⚠️  macOS detected!"
+    echo ""
+    echo "Please install the following using Homebrew:"
+    echo ""
+    echo "1. Install Homebrew (if not installed):"
+    echo '   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
+    echo ""
+    echo "2. Install dependencies:"
+    echo "   brew install node ffmpeg graphicsmagick ghostscript"
     echo ""
     echo "Then run these commands:"
     echo ""

@@ -19,7 +19,7 @@ A production-grade WhatsApp AI Business Bot platform designed for enterprise cus
 - npm or yarn
 - Git
 
-**Windows Users:** The one-line installer doesn't support Windows. Please follow manual installation below.
+**Windows & macOS Users:** The one-line installer only supports Linux. Please follow manual installation below.
 
 ### Installation
 
@@ -39,23 +39,44 @@ cp userdata/.env userdata/.env.local
 npm run node_mei
 ```
 
-### One-Line Install (Linux/Mac only)
+### One-Line Install (Linux only)
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/AndrewBoey123/Mei16Business/main/install.sh | sudo bash
 ```
 
-### Windows Installation
+### Windows & macOS Installation
 
+#### Windows:
 1. Install [Node.js 20+](https://nodejs.org)
 2. Install [Git for Windows](https://git-scm.com/download/win)
-3. Open PowerShell or CMD:
+3. Open PowerShell or CMD and run:
 
 ```powershell
 git clone https://github.com/AndrewBoey123/Mei16Business.git Mei
 cd Mei
 npm install
 # Edit userdata\.env with your settings
+npm run node_mei
+```
+
+#### macOS:
+1. Install Homebrew (if not installed):
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+2. Install dependencies:
+```bash
+brew install node ffmpeg graphicsmagick ghostscript
+```
+
+3. Clone and run:
+```bash
+git clone https://github.com/AndrewBoey123/Mei16Business.git Mei
+cd Mei
+npm install
+# Edit userdata/.env with your settings
 npm run node_mei
 ```
 
