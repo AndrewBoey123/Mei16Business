@@ -4,8 +4,8 @@
 
 set -e
 
-REPO_URL="https://github.com/AndrewBoey123/Mei16Business.git"
-INSTALL_DIR="Mei16Business"
+REPO_URL="https://github.com/AndrewBoey123/Mei16Business"
+INSTALL_DIR="Mei"
 
 echo "=========================================="
 echo "  Mei16Business Installer"
@@ -44,9 +44,9 @@ install_system_deps() {
     echo "📦 Installing system dependencies (ffmpeg, graphicsmagick, ghostscript)..."
     if [ "$OS" = "ubuntu" ] || [ "$OS" = "debian" ]; then
         apt-get update
-        apt-get install -y ffmpeg graphicsmagick ghostscript curl git
+        apt-get install -y ffmpeg graphicsmagick ghostscript curl unzip
     elif [ "$OS" = "centos" ] || [ "$OS" = "rhel" ] || [ "$OS" = "fedora" ]; then
-        yum install -y ffmpeg GraphicsMagick ghostscript curl git
+        yum install -y ffmpeg GraphicsMagick ghostscript curl unzip
     else
         echo "⚠️  Could not auto-install system dependencies"
         echo "You may need to manually install: ffmpeg, graphicsmagick, ghostscript"
@@ -84,7 +84,7 @@ fi
 
 echo ""
 
-# Clone repository
+# Check if directory exists
 if [ -d "$INSTALL_DIR" ]; then
     echo "⚠️  Directory $INSTALL_DIR already exists!"
     read -p "Remove and reinstall? (y/N): " confirm
@@ -96,12 +96,21 @@ if [ -d "$INSTALL_DIR" ]; then
     fi
 fi
 
+# Download and extract (no git history)
 echo "📥 Downloading Mei16Business..."
-git clone "$REPO_URL" "$INSTALL_DIR"
+curl -sL "${REPO_URL}/archive/refs/heads/main.zip" -o mei16_temp.zip
+unzip -q mei16_temp.zip
+mv Mei16Business-main "$INSTALL_DIR"
+rm mei16_temp.zip
+
+# Remove git-related files
 cd "$INSTALL_DIR"
+rm -rf .git .gitignore .github
+
+echo "✅ Downloaded to $INSTALL_DIR/"
+echo ""
 
 # Install dependencies
-echo ""
 echo "📦 Installing npm dependencies..."
 npm install
 
@@ -131,5 +140,5 @@ echo "   npm run node_mei"
 echo ""
 echo "4. Scan the QR code with WhatsApp to link your account"
 echo ""
-echo "📖 For more info: https://github.com/AndrewBoey123/Mei16Business"
+echo "📖 For more info: $REPO_URL"
 echo ""

@@ -22,8 +22,8 @@ A production-grade WhatsApp AI Business Bot platform designed for enterprise cus
 
 ```bash
 # Clone the repository
-git clone https://github.com/AndrewBoey123/Mei16Business.git
-cd Mei16Business
+git clone https://github.com/AndrewBoey123/Mei16Business.git Mei
+cd Mei
 
 # Install dependencies
 npm install
