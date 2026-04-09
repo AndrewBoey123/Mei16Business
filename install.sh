@@ -16,12 +16,38 @@ echo ""
 if [ -f /etc/os-release ]; then
     . /etc/os-release
     OS=$ID
+elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "win32" ]]; then
+    OS="windows"
 else
     OS=$(uname -s)
 fi
 
 echo "📍 Detected OS: $OS"
 echo ""
+
+# Windows-specific instructions
+if [ "$OS" = "windows" ] || [[ "$OS" == *"MINGW"* ]] || [[ "$OS" == *"MSYS"* ]]; then
+    echo "⚠️  Windows detected!"
+    echo ""
+    echo "Please install the following manually:"
+    echo ""
+    echo "1. Node.js 20+: https://nodejs.org"
+    echo "2. Git for Windows: https://git-scm.com/download/win"
+    echo ""
+    echo "Optional (for full features):"
+    echo "3. ffmpeg: https://ffmpeg.org/download.html#build-windows"
+    echo "4. GraphicsMagick: http://www.graphicsmagick.org/download.html"
+    echo "5. Ghostscript: https://ghostscript.com/releases/gsdnld.html"
+    echo ""
+    echo "Then run these commands:"
+    echo ""
+    echo "  git clone https://github.com/AndrewBoey123/Mei16Business.git Mei"
+    echo "  cd Mei"
+    echo "  npm install"
+    echo "  npm run node_mei"
+    echo ""
+    exit 0
+fi
 
 # Function to install Node.js
 install_nodejs() {
