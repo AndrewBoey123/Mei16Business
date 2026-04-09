@@ -1,5 +1,6 @@
 #!/bin/bash
 # Mei16Business One-Line Installer
+# Auto-installs: Node.js 20, ffmpeg, graphicsmagick, ghostscript
 
 set -e
 
@@ -11,22 +12,76 @@ echo "  Mei16Business Installer"
 echo "=========================================="
 echo ""
 
-# Check if Node.js is installed
+# Detect OS
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    OS=$ID
+else
+    OS=$(uname -s)
+fi
+
+echo "📍 Detected OS: $OS"
+echo ""
+
+# Function to install Node.js
+install_nodejs() {
+    echo "📦 Installing Node.js 20..."
+    if [ "$OS" = "ubuntu" ] || [ "$OS" = "debian" ]; then
+        curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+        apt-get install -y nodejs
+    elif [ "$OS" = "centos" ] || [ "$OS" = "rhel" ] || [ "$OS" = "fedora" ]; then
+        curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -
+        yum install -y nodejs
+    else
+        echo "❌ Unsupported OS for automatic Node.js installation"
+        echo "Please install Node.js 20+ manually from https://nodejs.org/"
+        exit 1
+    fi
+}
+
+# Function to install system dependencies
+install_system_deps() {
+    echo "📦 Installing system dependencies (ffmpeg, graphicsmagick, ghostscript)..."
+    if [ "$OS" = "ubuntu" ] || [ "$OS" = "debian" ]; then
+        apt-get update
+        apt-get install -y ffmpeg graphicsmagick ghostscript curl git
+    elif [ "$OS" = "centos" ] || [ "$OS" = "rhel" ] || [ "$OS" = "fedora" ]; then
+        yum install -y ffmpeg GraphicsMagick ghostscript curl git
+    else
+        echo "⚠️  Could not auto-install system dependencies"
+        echo "You may need to manually install: ffmpeg, graphicsmagick, ghostscript"
+    fi
+}
+
+# Check if running as root for system installs
+if [ "$EUID" -ne 0 ] && [ -z "$SKIP_SYSTEM_INSTALL" ]; then
+    echo "⚠️  This installer needs sudo/root to install Node.js and system dependencies"
+    echo ""
+    echo "Run with sudo:"
+    echo "  curl -sSL https://raw.githubusercontent.com/AndrewBoey123/Mei16Business/main/install.sh | sudo bash"
+    echo ""
+    echo "Or skip system installation (if Node.js is already installed):"
+    echo "  SKIP_SYSTEM_INSTALL=1 curl -sSL ... | bash"
+    exit 1
+fi
+
+# Install system dependencies
+install_system_deps
+
+# Check/Install Node.js
 if ! command -v node &> /dev/null; then
-    echo "❌ Node.js is not installed!"
-    echo "Please install Node.js 18+ first:"
-    echo "  https://nodejs.org/"
-    exit 1
+    echo "❌ Node.js not found"
+    install_nodejs
+else
+    NODE_VERSION=$(node --version | cut -d'v' -f2 | cut -d'.' -f1)
+    if [ "$NODE_VERSION" -lt 18 ]; then
+        echo "❌ Node.js version is too old (found: $(node --version))"
+        install_nodejs
+    else
+        echo "✅ Node.js $(node --version) found"
+    fi
 fi
 
-NODE_VERSION=$(node --version | cut -d'v' -f2 | cut -d'.' -f1)
-if [ "$NODE_VERSION" -lt 18 ]; then
-    echo "❌ Node.js version is too old (found: $(node --version))"
-    echo "Please upgrade to Node.js 18+"
-    exit 1
-fi
-
-echo "✅ Node.js $(node --version) found"
 echo ""
 
 # Clone repository
@@ -47,12 +102,12 @@ cd "$INSTALL_DIR"
 
 # Install dependencies
 echo ""
-echo "📦 Installing dependencies..."
+echo "📦 Installing npm dependencies..."
 npm install
 
 # Check system dependencies
 echo ""
-echo "🔍 Checking system dependencies..."
+echo "🔍 Verifying system dependencies..."
 npm run check-deps || true
 
 echo ""
@@ -75,4 +130,6 @@ echo "3. Start the bot:"
 echo "   npm run node_mei"
 echo ""
 echo "4. Scan the QR code with WhatsApp to link your account"
+echo ""
+echo "📖 For more info: https://github.com/AndrewBoey123/Mei16Business"
 echo ""
