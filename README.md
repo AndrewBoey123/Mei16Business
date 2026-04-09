@@ -22,7 +22,7 @@ A production-grade WhatsApp AI Business Bot platform designed for enterprise cus
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/Mei16Business.git
+git clone https://github.com/AndrewBoey123/Mei16Business.git
 cd Mei16Business
 
 # Install dependencies
@@ -39,7 +39,7 @@ npm run node_mei
 ### One-Line Install (Alternative)
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/YOUR_USERNAME/Mei16Business/main/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/AndrewBoey123/Mei16Business/main/install.sh | bash
 ```
 
 ## Configuration

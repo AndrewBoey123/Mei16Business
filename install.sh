@@ -3,7 +3,7 @@
 
 set -e
 
-REPO_URL="https://github.com/YOUR_USERNAME/Mei16Business.git"
+REPO_URL="https://github.com/AndrewBoey123/Mei16Business.git"
 INSTALL_DIR="Mei16Business"
 
 echo "=========================================="
