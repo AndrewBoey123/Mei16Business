@@ -85,11 +85,11 @@ Mei16Business/
 
 ## License
 
-Read: https://andrew.education/meilicense.html
+Read: https://meibot.cloud/terms_of_service.htm
 
 ## Authors
 
 - Andrew Boey
 - Hafiz Aiman
 
-Homepage: https://www.andrew.education
+Homepage: https://meibot.cloud
