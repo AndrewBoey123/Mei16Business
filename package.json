@@ -10,7 +10,7 @@
     "check-deps": "node check-deps.js",
     "postinstall": "node check-deps.js || true"
   },
-  "author": "Andrew Boey, Engelbert Pereira, Dhruba Rahman, Hafiz Aiman",
+  "author": "Andrew Boey, Hafiz Aiman",
   "license": "Read https://andrew.education/meilicense.html",
   "homepage": "https://www.andrew.education",
   "dependencies": {

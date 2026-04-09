@@ -90,8 +90,6 @@ Read: https://andrew.education/meilicense.html
 ## Authors
 
 - Andrew Boey
-- Engelbert Pereira  
-- Dhruba Rahman
 - Hafiz Aiman
 
 Homepage: https://www.andrew.education
