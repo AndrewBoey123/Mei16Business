@@ -104,12 +104,6 @@ PORT=3000
 
 After starting, scan the QR code displayed to link your WhatsApp account.
 
-### Boss Commands
-Send commands from the BOSS_PHONE number:
-- `STATUS` - Check bot status
-- `RESTART` - Restart the bot
-- More commands in the documentation
-
 ## Project Structure
 
 ```
